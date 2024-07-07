@@ -81,6 +81,10 @@ touch image_pose_synchronizer.py : 파이썬 파일 생성
 ```
 roslaunch lego_loam run.launch
 ```
+* 구현한 ROS 노드 실행 : 위에서 제작 노드 실행
+```
+rosrun synchronizing image_pose_synchronizer.py
+```
 * ROS bag 파일 재생 :
 ```
 rosbag play dataset_train.bag --clock(시간 동기화)
@@ -90,16 +94,12 @@ test 데이터셋의 파일 손상이 되어 reindex 진행
 ```
 rosbag reindex dataset_test.bag 
 ```
-* 구현한 ROS 노드 실행 : 위에서 제작 노드 실행
-```
-rosrun synchronizing image_pose_synchronizer.py
-```
 * 결과 확인(이미지 와 pose 정보가 동기화되어 저장되었는지 확인)
 
 [위에 영상 첨부](https://github.com/kyeonghyeon0314/PoseNet-Pytorch-visual-localization.git)
 
 ![Screenshot from 2024-07-07 16-58-38](https://github.com/kyeonghyeon0314/PoseNet-Pytorch-visual-localization/assets/132433953/51360090-9b0a-4edd-af69-a9473508292a)
-
+PoseNet 학습시 dataloader.py 만들기 용이하게 pose 데이터를 하나의 txt로 만들어 질 수 있도록 수정 하였습니다.
 
 ## 해결하지 못한 사항
 영상에 보면 error가 보이는데 일단 정보가 형성되어서 넘어갔습니다. 어떤건지 향후 파악하도록 하겠습니다.
