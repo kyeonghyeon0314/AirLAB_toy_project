@@ -121,7 +121,7 @@ Failed to transform from frame [/camera] to frame [map]
 
 
 # 취득한 GT AirLab Dataset으로 학습 및 테스트(미완료)
-* 분할된 이미지 및 pose 데이터 PoseNet 학습에 적합한 형태로 변환(COCO 포맷 으로 추정)  // 현재 고민사항 어떻게 데이터 전처리를 진행해야 할지 잘 모르겠습니다.
+* 분할된 이미지 및 pose 데이터 PoseNet 학습에 적합한 형태로 변환(COCO 포맷 으로 추정)  // 현재 어떻게 데이터 전처리를 해야할지 고민 및 검색중입니다.
 * 최적의 파라미터 조합
 
 # Visual Localization Node 제작(미완료)
