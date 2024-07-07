@@ -35,6 +35,10 @@ tensorboard 사용전 환경변수 설정
 2. TensorBoard가 설치된 경로를 시스템 PATH에 추가합니다.(code ~/.bashrc 입력하여 수정)
 
 ![tensorboard환경변수설정](https://github.com/kyeonghyeon0314/PoseNet-Pytorch-visual-localization/assets/132433953/a4357321-dba8-4ae3-a91e-1a6e551e6ed2)
+![초기학습 진행 그래프](https://github.com/kyeonghyeon0314/PoseNet-Pytorch-visual-localization/assets/132433953/6ef86f09-bf52-42a7-b35b-bd8cc4c7db69)
+
+
+
 
 ### -[KingsCollege Dataset](http://mi.eng.cam.ac.uk/projects/relocalisation/)
 - 기본 셋팅 [ Epoch : 400, lr : 0.0001, dropout rate : 0.5, model 저장 : 50, batch_size : 16, num_epoch_decay : 50(감소율 0.1) ]
