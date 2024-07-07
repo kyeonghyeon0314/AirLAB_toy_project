@@ -99,8 +99,28 @@ rosbag reindex dataset_test.bag
 [위에 영상 첨부](https://github.com/kyeonghyeon0314/PoseNet-Pytorch-visual-localization.git)
 
 ![Screenshot from 2024-07-07 16-58-38](https://github.com/kyeonghyeon0314/PoseNet-Pytorch-visual-localization/assets/132433953/51360090-9b0a-4edd-af69-a9473508292a)
+
 PoseNet 학습시 dataloader.py 만들기 용이하게 pose 데이터를 하나의 txt로 만들어 질 수 있도록 image_pose_synchronizer.py를 수정 하였습니다.
+```
+#기존 코드
+    pose_data = f"{position.x},{position.y},{position.z},{orientation.x},{orientation.y},{orientation.z},{orientation.w}\n"
+    pose_filename = f"pose_{timestamp.secs}_{timestamp.nsecs}.txt"
+    pose_path = os.path.join("poses", pose_filename)  # pose 저장 경로 설정
+    with open(pose_path, "w") as f:
+        f.write(pose_data)
+```
+```
+#수정 코드
+    pose_data = f"images/{image_filename} {position.x} {position.y} {position.z} {orientation.x} {orientation.y} {orientation.z} {orientation.w}\n"
+    
+    
+    pose_filename = "poses.txt"
+    pose_path = os.path.join("poses", pose_filename)  # pose 저장 경로 설정
+    with open(pose_path, "a") as f:  #append 모드로 파일 열기
+        f.write(pose_data)
+```
 ![Screenshot from 2024-07-07 23-35-45](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/8eeb2e60-4a4e-4f66-a3ef-bbaad9ae9538)
+
 사진을 보시면 이미지 파일개수와 pose 정보의 개수가 동일 한것을 확인 할 수 있습니다.
 
 
