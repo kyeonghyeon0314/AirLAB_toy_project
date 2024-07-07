@@ -93,7 +93,8 @@ rosrun synchronizing image_pose_synchronizer.py
 
 [위에 영상 첨부](https://github.com/kyeonghyeon0314/PoseNet-Pytorch-visual-localization.git)
 
-![Screenshot from 2024-07-07 11-43-44](https://github.com/kyeonghyeon0314/PoseNet-Pytorch-visual-localization/assets/132433953/a4871ae6-86c6-488f-8200-1611da09211e)
+![Screenshot from 2024-07-07 16-58-38](https://github.com/kyeonghyeon0314/PoseNet-Pytorch-visual-localization/assets/132433953/51360090-9b0a-4edd-af69-a9473508292a)
+
 
 ## 해결하지 못한 사항
 영상에 보면 error가 보이는데 일단 정보가 형성되어서 넘어갔습니다. 어떤건지 향후 파악하도록 하겠습니다.
