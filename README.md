@@ -1,4 +1,5 @@
-# 프로젝트 진행 중 참고 링크
+# PosNet-Pytorch-visual-localization
+reference
 * [LeGO-LOAM](https://github.com/RobustFieldAutonomyLab/LeGO-LOAM)
 * [PoseNet-Pytorch](https://github.com/youngguncho/PoseNet-Pytorch)
 
