@@ -85,7 +85,7 @@ touch image_pose_synchronizer.py  # 파이썬 파일 생성
 
 2. 노드 실행 및 gt 제작
 * roscore
-* lego-loam 실행
+* lego-loam 실행 (실행하지 않아도 GT 제작 가능)  lego-loam을 어떻게 활용해야 할지 모르겠습니다. 7/9/01:04
 ```
 roslaunch lego_loam run.launch
 ```
@@ -119,7 +119,7 @@ PoseNet 학습시 dataloader.py 만들기 용이하게 pose 데이터를 하나�
 ```
 ```
 #수정 코드
-    pose_data = f"images/{image_filename} {position.x} {position.y} {position.z} {orientation.x} {orientation.y} {orientation.z} {orientation.w}\n"
+    pose_data = f"images_{test, train 상황에 맞게 수정}/{image_filename} {position.x} {position.y} {position.z} {orientation.x} {orientation.y} {orientation.z} {orientation.w}\n"
     
     
     pose_filename = "poses.txt"
@@ -131,28 +131,6 @@ PoseNet 학습시 dataloader.py 만들기 용이하게 pose 데이터를 하나�
 
 사진을 보시면 이미지 파일개수와 pose 정보의 개수가 동일 한것을 확인 할 수 있고 PoseNet-Pytorc의 소스코드를 그대로 활용하기 편리해졌습니다.
 
-
-## 해결하지 못한 사항
-영상에 보면 error가 보이는데 일단 정보가 형성되어서 넘어갔습니다. 어떤건지 향후 파악하도록 하겠습니다.
-* map cloud(stack) : status/status:ok/Message
-  
-Failed to transform from frame [/camera_init] to frame [map]
-
-
-* Trajectory : status/status:ok/Message
-  
-Failed to transform from frame [/camera_init] to frame [map]
-
-
-
-* surface features(pink) : status/status:ok/Message
-  
-Failed to transform from frame [/camera] to frame [map]
-
-
-* Edge Features(green) : status/status:ok/Message
-  
-Failed to transform from frame [/camera] to frame [map]
 
 
 
@@ -169,15 +147,83 @@ class CustomDataset(Dataset):
         self.lines = raw_lines[0:]  # 기존은 4번째 부터 
 ```
 
-* 학습실행
+## 학습실행
+* 초기 학습 [ Epoch : 400, lr : 0.0001, dropout rate : 0.5, model 저장 : 50, batch_size : 16, num_epoch_decay : 50(감소율 0.1) ]
 ```
 python3 train.py --image_path ./AirLAB/train --metadata_path ./AirLAB/train/poses.txt
 ```
-* 최적의 파라미터 조합하기
+![첫번째 학습](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/6ee64ffd-6ef5-407c-becb-a9644eb14f10)
+![초기 학습 정도 tensorboard(1)](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/430bcbf4-1705-4c5d-ba34-a7c01938954a)
 
-# Visual Localization Node 제작(미완료)
+
+### 최적의 파라미터 조합하기
+* 초기 학습시 저장된 모델 test 해보기
+
+
+
+
+# Visual Localization Node 제작 및 실행
 Test dataset으로 실시간으로 GT의 pose정보와 Predict한 pose정보를 Rviz상에서 시각화하기
-	
+
+실행 코드 파일 생성
+```
+touch pose_visulizer.py  # 기존 동기화 패키지에 생성
+```
+실행 권한 부여하기
+```
+chmod +x /catkin_ws/src/synchronizing/scripts/pose_visualizer.py
+```
+test.py 수정하기 (전체 코드는 업로드)
+```
+수정사항 기입
+```
+
+
+## ROS 실행 순서 (각자의 디렉토리에서)
+```
+roscore
+rosrun {패키지명} pose_visualizer.py
+rvuz
+```
+RViz 설정 후 play
+* Fixed Frame 설정 : RViz에서 Global Options의 Fixed Frame을 map으로 설정한다.
+* TF 표시 : Displays 패널에서 add에서 TF를 선택하고 tf트리를 시각화한다.
+* MarkerArray 표시 : Displays 패널에서 "Add" 버튼을 클릭하고 "MarkerArray"를 선택하여 예측 Pose마커를 시각화 한다.
+```
+rosbag play *.bag --clock --topics /zed/left/image_rect_color/compressed
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
