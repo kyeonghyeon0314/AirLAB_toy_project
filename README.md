@@ -70,7 +70,7 @@ catkin_create_pkg synchronizing rospy cv_bridge tf message_filters sensor_msgs
 * message_filters : 시간 동기화를 위한 ApproximateTimeSynchronizer를 제공(일부 오차를 허용)
 * sensor_msgs : 이미지 메시지(CompressedImage)를 사용
 ```
-touch image_pose_synchronizer.py : 파이썬 파일 생성
+touch image_pose_synchronizer.py  # 파이썬 파일 생성
 ```
 
 [image_pose_synchronizer.py 생성은 해당 코드 참조](https://github.com/Taemin0707/Regala/blob/main/regala_ros/src/video_stitcher_timeshync.py)
@@ -159,6 +159,4 @@ Test dataset으로 실시간으로 GT의 pose정보와 Predict한 pose정보를 
 	
 
 
-
-   
 
