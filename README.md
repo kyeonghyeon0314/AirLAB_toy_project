@@ -129,7 +129,7 @@ PoseNet 학습시 dataloader.py 만들기 용이하게 pose 데이터를 하나�
 ```
 ![Screenshot from 2024-07-07 23-35-45](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/8eeb2e60-4a4e-4f66-a3ef-bbaad9ae9538)
 
-사진을 보시면 이미지 파일개수와 pose 정보의 개수가 동일 한것을 확인 할 수 있고 PoseNet-Pytorc의 소스코드를 그대로 활용하기 편리해졌습니다.
+사진을 보시면 이미지 파일개수와 pose 정보의 개수가 동일 한것을 확인 할 수 있고 PoseNet-Pytorc의 소스코드를 그대로 활용하기 편리해졌습니다. + 학습에는 지장이 ㅇ벗었는데 test 과정에서 문제가 생겨 GT를 좀더 상황에 맞게 설정후 다시 학습을 시켰씁니다.(7/09/02:11)
 
 
 
@@ -150,7 +150,7 @@ class CustomDataset(Dataset):
 ## 학습실행
 * 초기 학습 [ Epoch : 400, lr : 0.0001, dropout rate : 0.5, model 저장 : 50, batch_size : 16, num_epoch_decay : 50(감소율 0.1) ]
 ```
-python3 train.py --image_path ./AirLAB/train --metadata_path ./AirLAB/train/poses.txt
+python3 train.py --image_path ./AirLAB/AirLAB --metadata_path ./AirLAB/AirLAB/poses_train.txt
 ```
 ![첫번째 학습](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/6ee64ffd-6ef5-407c-becb-a9644eb14f10)
 ![초기 학습 정도 tensorboard(1)](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/430bcbf4-1705-4c5d-ba34-a7c01938954a)
