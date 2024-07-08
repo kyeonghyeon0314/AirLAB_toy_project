@@ -61,15 +61,17 @@ tensorboard 사용전 환경변수 설정
 
 # GT제작(Lidar, SLAM(LeGO-LOAM))
 1. 패키지 제작
-'''
+```
 catkin_create_pkg synchronizing rospy cv_bridge tf message_filters sensor_msgs
-'''
+```
+
 * cv_bridge : 이미지 압축을 해제하고 처리하기 위해
 * tf : transform 토픽을 subscribe 하고 pose 정보 추출
 * message_filters : 시간 동기화를 위한 ApproximateTimeSynchronizer를 제공(일부 오차를 허용)
 * sensor_msgs : 이미지 메시지(CompressedImage)를 사용
-
+```
 touch image_pose_synchronizer.py : 파이썬 파일 생성
+```
 
 [image_pose_synchronizer.py 생성은 해당 코드 참조](https://github.com/Taemin0707/Regala/blob/main/regala_ros/src/video_stitcher_timeshync.py)
 
