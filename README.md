@@ -32,8 +32,14 @@ reference
 
 tensorboard 사용전 환경변수 설정
 
-1. pip show tensorboard 명령어로 설치 경로를 확인합니다.
-2. TensorBoard가 설치된 경로를 시스템 PATH에 추가합니다.(code ~/.bashrc 입력하여 수정)
+1. tensorboard 설치 경로를 확인합니다.
+```
+pip show tensorboard
+```
+2. TensorBoard가 설치된 경로를 시스템 PATH에 추가합니다.
+```
+code ~/.bashrc
+```
 
 ![tensorboard환경변수설정](https://github.com/kyeonghyeon0314/PoseNet-Pytorch-visual-localization/assets/132433953/a4357321-dba8-4ae3-a91e-1a6e551e6ed2)
 
@@ -123,7 +129,7 @@ PoseNet 학습시 dataloader.py 만들기 용이하게 pose 데이터를 하나�
 ```
 ![Screenshot from 2024-07-07 23-35-45](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/8eeb2e60-4a4e-4f66-a3ef-bbaad9ae9538)
 
-사진을 보시면 이미지 파일개수와 pose 정보의 개수가 동일 한것을 확인 할 수 있습니다.
+사진을 보시면 이미지 파일개수와 pose 정보의 개수가 동일 한것을 확인 할 수 있고 PoseNet-Pytorc의 소스코드를 그대로 활용하기 편리해졌습니다.
 
 
 ## 해결하지 못한 사항
@@ -150,9 +156,24 @@ Failed to transform from frame [/camera] to frame [map]
 
 
 
-# 취득한 GT AirLab Dataset으로 학습 및 테스트(미완료)
-* 분할된 이미지 및 pose 데이터 PoseNet 학습에 적합한 형태로 변환(COCO 포맷 으로 추정)  // 현재 어떻게 데이터 전처리를 해야할지 고민 및 검색중입니다.
-* 최적의 파라미터 조합
+# 취득한 GT AirLab Dataset으로 학습 및 테스트
+기존 dataset_train.txt 를 보면 3번쨰 라인까지 데이터의 정보에 대한 정보를 담고 있습니다. 해당 부분만 수정하여 학습을 진행하였습니다.
+```
+class CustomDataset(Dataset):
+    def __init__(self, image_path, metadata_path, mode, transform, num_val=100):
+        self.image_path = image_path
+        self.metadata_path = metadata_path
+        self.mode = mode
+        self.transform = transform
+        raw_lines = open(self.metadata_path, 'r').readlines()
+        self.lines = raw_lines[0:]  # 기존은 4번째 부터 
+```
+
+* 학습실행
+```
+python3 train.py --image_path ./AirLAB/train --metadata_path ./AirLAB/train/poses.txt
+```
+* 최적의 파라미터 조합하기
 
 # Visual Localization Node 제작(미완료)
 Test dataset으로 실시간으로 GT의 pose정보와 Predict한 pose정보를 Rviz상에서 시각화하기
