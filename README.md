@@ -147,13 +147,13 @@ class CustomDataset(Dataset):
         self.lines = raw_lines[0:]  # 기존은 4번째 부터 
 ```
 
-## 학습실행
+## 학습실행 (GT 재제작 후 다시 학습)
 * 초기 학습 [ Epoch : 400, lr : 0.0001, dropout rate : 0.5, model 저장 : 50, batch_size : 16, num_epoch_decay : 50(감소율 0.1) ]
+* num_val = 1000으로 수정
 ```
 python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/poses_train.txt
 ```
-![첫번째 학습](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/6ee64ffd-6ef5-407c-becb-a9644eb14f10)
-![초기 학습 정도 tensorboard(1)](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/430bcbf4-1705-4c5d-ba34-a7c01938954a)
+
 
 
 ### 최적의 파라미터 조합하기
