@@ -78,10 +78,8 @@ catkin_create_pkg synchronizing rospy cv_bridge tf message_filters sensor_msgs
 ```
 touch image_pose_synchronizer.py  # 파이썬 파일 생성
 ```
-
 [image_pose_synchronizer.py 생성은 해당 코드 참조](https://github.com/Taemin0707/Regala/blob/main/regala_ros/src/video_stitcher_timeshync.py)
 
-/tf topic 발행
 
 2. 노드 실행 및 gt 제작
 * roscore
@@ -129,13 +127,16 @@ PoseNet 학습시 dataloader.py 만들기 용이하게 pose 데이터를 하나�
 ```
 ![Screenshot from 2024-07-07 23-35-45](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/8eeb2e60-4a4e-4f66-a3ef-bbaad9ae9538)
 
-사진을 보시면 이미지 파일개수와 pose 정보의 개수가 동일 한것을 확인 할 수 있고 PoseNet-Pytorc의 소스코드를 그대로 활용하기 편리해졌습니다. + 학습에는 지장이 ㅇ벗었는데 test 과정에서 문제가 생겨 GT를 좀더 상황에 맞게 설정후 다시 학습을 시켰씁니다.(7/09/02:11)
+사진을 보시면 이미지 파일개수와 pose 정보의 개수가 동일 한것을 확인 할 수 있고 PoseNet-Pytorc의 소스코드를 그대로 활용하기 편리해졌습니다. 
+
++ 학습에는 지장이 없었는데 test 과정에서 문제가 생겨 GT를 좀더 상황에 맞게 설정후 다시 학습을 시켰습니다.(7/09/02:11)
 
 
 
 
 # 취득한 GT AirLab Dataset으로 학습 및 테스트
 기존 dataset_train.txt 를 보면 3번쨰 라인까지 데이터의 정보에 대한 정보를 담고 있습니다. 해당 부분만 수정하여 학습을 진행하였습니다.
+![image](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/b8c7c415-c823-4586-b7b7-1c7337737294)
 ```
 class CustomDataset(Dataset):
     def __init__(self, image_path, metadata_path, mode, transform, num_val=100):
@@ -149,67 +150,52 @@ class CustomDataset(Dataset):
 
 ## 학습실행 (GT 재제작 후 다시 학습)
 * 초기 학습 [ Epoch : 400, lr : 0.0001, dropout rate : 0.5, model 저장 : 50, batch_size : 16, num_epoch_decay : 50(감소율 0.1) ]
-* num_val = 1000으로 수정
 ```
 python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/poses_train.txt
 ```
+![첫번째 학습](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/4fc52b0e-06a6-4e37-ade4-7acf66d036a3)
+![test](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/a664bc04-bab5-4949-8037-3ab8fbd14250)
 
 
-
-### 최적의 파라미터 조합하기
+### 최적의 파라미터 조합하기 ( 진행중 )
 * 초기 학습시 저장된 모델 test 해보기
+* num_val=3000 (검증 데이터 증가)
+```
+python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/poses_train.txt --batch_size 32 --num_epochs 150 --lr 0.001 --num_epochs_decay 25 --model_save_step 25
+```
+![파라미터 조정후 학습](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/133f5ff7-8bc7-4b5d-9ba4-bf95dd11204e)
+
+그러나 테스트 값의 pose error가 100이 넘어가는 것을 확인하였습니다. 과적합된것으로 판단하여 아래와 같이 재학습 진행 하였습니다.
 
 
+# Test dataset으로 실시간으로 GT의 pose정보와 Predict한 pose정보를 Rviz상에서 시각화하기
+## Predict한 Pose RViz상에 시각화 하기
+패키지 생성
+```
+catkin_create_pkg <패키지 이름> cv_bridge geometry_msgs message_filters rospy visualization_msgs
 
-
-# Visual Localization Node 제작 및 실행
-Test dataset으로 실시간으로 GT의 pose정보와 Predict한 pose정보를 Rviz상에서 시각화하기
-
+```
 실행 코드 파일 생성
 ```
-touch pose_visulizer.py  # 기존 동기화 패키지에 생성
+touch PoseNet_predictor.py  #생성 후 코드 작성
 ```
 실행 권한 부여하기
 ```
-chmod +x /catkin_ws/src/synchronizing/scripts/pose_visualizer.py
-```
-test.py 수정하기 (전체 코드는 업로드)
-```
-수정사항 기입
+chmod +x /catkin_ws/src/synchronizing/scripts/PoseNet_predictor.py
 ```
 
-
-## ROS 실행 순서 (각자의 디렉토리에서)
+* ROS 실행 순서
 ```
 roscore
 rosrun {패키지명} pose_visualizer.py
-rvuz
+rviz
+rosbag play dataset_test.bag
 ```
-RViz 설정 후 play
-* Fixed Frame 설정 : RViz에서 Global Options의 Fixed Frame을 map으로 설정한다.
-* TF 표시 : Displays 패널에서 add에서 TF를 선택하고 tf트리를 시각화한다.
-* MarkerArray 표시 : Displays 패널에서 "Add" 버튼을 클릭하고 "MarkerArray"를 선택하여 예측 Pose마커를 시각화 한다.
-```
-rosbag play *.bag --clock --topics /zed/left/image_rect_color/compressed
-```
+현재 PoseNet 모델이 학습이 제대로 이루어 지지 않아 예측 한 pose 가 실제 pose와 아주 동떨어진 위치에 존재합니다.
 
+그리고 실제 데이터가 실행 되는 속도보다 현저히 느려 딜레이가 존재 합니다.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/93003094-f34e-4798-8cde-25a0dd92db13
 
 
 
