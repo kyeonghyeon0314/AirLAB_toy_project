@@ -89,7 +89,7 @@ touch image_pose_synchronizer.py  # 파이썬 파일 생성
 ```
 roslaunch lego_loam run.launch
 ```
-* 구현한 ROS 노드 실행 : 위에서 제작 노드 실행
+* 구현한 ROS 노드 실행 : 위에서 제작 노드 실행 (저장하고 싶은 디렉토리에서)
 ```
 rosrun synchronizing image_pose_synchronizer.py
 ```
