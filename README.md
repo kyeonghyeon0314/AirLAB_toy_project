@@ -160,12 +160,22 @@ python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/
 ### 최적의 파라미터 조합하기 ( 진행중 )
 * 초기 학습시 저장된 모델 test 해보기
 * num_val=3000 (검증 데이터 증가)
+1. 첫번쨰
 ```
 python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/poses_train.txt --batch_size 32 --num_epochs 150 --lr 0.001 --num_epochs_decay 25 --model_save_step 25
 ```
 ![파라미터 조정후 학습](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/133f5ff7-8bc7-4b5d-9ba4-bf95dd11204e)
 
-그러나 테스트 값의 pose error가 100이 넘어가는 것을 확인하였습니다. 과적합된것으로 판단하여 아래와 같이 재학습 진행 하였습니다.
+그러나 테스트 값의 pose error가 100이 넘어가는 것을 확인하였습니다. 과적합된것으로 판단하였습니다.
+
+2. 두번째
+```
+python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/poses_train.txt --batch_size 32 --num_epochs 300 --model_save_step 10 --sample_step 100 --lr 0.001 --num_epochs_decay 20 --num_workers 6
+```
+![두번째 학습](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/b05e176b-3f46-4f98-a295-c1f466104363)
+![두번째 그래프](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/2f792354-d81c-439f-a1cd-633ac8dc3506)
+![image(1)](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/38d02035-92f7-4a5c-8bc4-568c33fefb95)
+
 
 
 # Test dataset으로 실시간으로 GT의 pose정보와 Predict한 pose정보를 Rviz상에서 시각화하기
