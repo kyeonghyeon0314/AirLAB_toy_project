@@ -66,6 +66,10 @@ code ~/.bashrc
 최종적으로 utillity.h , Cmake.txt , voxel_grid.h 변경
 
 # GT제작(Lidar, SLAM(LeGO-LOAM))
+
+GT를 제작할때 첫시도에 bag 파일에서 나오는 토픽을 구독하여 이미지와 pose 정보를 저장하는 방식으로 노드를 제작하였습니다. 그러나 이 것은 실시간성이 부족하여 로봇을 운행하는데 적합하지 않습니다. 그러나 LeGO-LOAM을 활용하면 실시 포즈 추정 데이터를 활용 할 수 있습니다. 두 방법 모두 기재해 놓도록 하겠습니다.
+
+## bag 파일에서 나오는 토픽 활용(실시간성이 좋지 않음)
 1. 패키지 제작
 ```
 catkin_create_pkg synchronizing rospy cv_bridge tf message_filters sensor_msgs
@@ -81,12 +85,9 @@ touch image_pose_synchronizer.py  # 파이썬 파일 생성
 [image_pose_synchronizer.py 생성은 해당 코드 참조](https://github.com/Taemin0707/Regala/blob/main/regala_ros/src/video_stitcher_timeshync.py)
 
 
+
 2. 노드 실행 및 gt 제작
 * roscore
-* lego-loam 실행 (실행하지 않아도 GT 제작 가능)  lego-loam을 어떻게 활용해야 할지 모르겠습니다. 7/9/01:04
-```
-roslaunch lego_loam run.launch
-```
 * 구현한 ROS 노드 실행 : 위에서 제작 노드 실행 (저장하고 싶은 디렉토리에서)
 ```
 rosrun synchronizing image_pose_synchronizer.py
@@ -104,7 +105,7 @@ rosbag reindex dataset_test.bag
 
 [LeGO-LOAM 실행 및 GT 제작 영상 첨부 (github_upload - Clipchamp로 제작 (1))](https://github.com/kyeonghyeon0314/PoseNet-Pytorch-visual-localization.git)
 
-![Screenshot from 2024-07-07 16-58-38](https://github.com/kyeonghyeon0314/PoseNet-Pytorch-visual-localization/assets/132433953/51360090-9b0a-4edd-af69-a9473508292a)
+![Screenshot from 2024-07-07 16-58-38](https://github.com/kyeonghyeon0314/PoseNet-Pytorch-visual-localization/assets/132433953/51360090-9b0a-4edd-af69-a9473508292a){: width="60" height="60%"}
 
 PoseNet 학습시 dataloader.py 만들기 용이하게 pose 데이터를 하나의 txt로 만들어 질 수 있도록 image_pose_synchronizer.py를 수정 하였습니다.
 ```
@@ -131,7 +132,15 @@ PoseNet 학습시 dataloader.py 만들기 용이하게 pose 데이터를 하나�
 
 + 학습에는 지장이 없었는데 test 과정에서 문제가 생겨 GT를 좀더 상황에 맞게 설정후 다시 학습을 시켰습니다.(7/09/02:11)
 
+아래 영상은 bag 파일에서 나오는 토픽을 가지고 학습된 PoseNet모델로 pose를 추정하는 영상입니다. 35초 부터 영상을 보시면 bag파일 play는 멈췄지만 실시간성이 좋지 않아 계속해서 추정을 하고 있는 모습을 볼 수 있습니다. 
 
+https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/93003094-f34e-4798-8cde-25a0dd92db13
+
+## LeGO-LOAM 활용(실시간성 용이)
+* lego-loam 실행
+```
+roslaunch lego_loam run.launch
+```
 
 
 # 취득한 GT AirLab Dataset으로 학습 및 테스트
@@ -178,6 +187,10 @@ python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/
 
 
 
+
+
+
+
 # Test dataset으로 실시간으로 GT의 pose정보와 Predict한 pose정보를 Rviz상에서 시각화하기
 ## Predict한 Pose RViz상에 시각화 하기
 패키지 생성
@@ -201,18 +214,6 @@ rosrun {패키지명} pose_visualizer.py
 rviz
 rosbag play dataset_test.bag
 ```
-현재 PoseNet 모델이 학습이 제대로 이루어 지지 않아 예측 한 pose 가 실제 pose와 아주 동떨어진 위치에 존재합니다.
-
-그리고 실제 데이터가 실행 되는 속도보다 현저히 느려 딜레이가 존재 합니다.
-
-https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/93003094-f34e-4798-8cde-25a0dd92db13
-
-
-
-
-
-
-
 
 
 
