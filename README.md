@@ -160,56 +160,21 @@ catkin_make
 mkdir script
 touch image_pose_sync.py
 ```
+CMakelist와 package xml 도 수정 하였습니다.
 * 실행 과정
 ```
 roscore
 roslaunch lego_loam run.launch
-rosrun image_pose_sync image_pose_sync.py
+rosrun image_pose_sync image_pose_sync.py --mode train
 rosbag play data_train.bag --clock
 ```
-위 과정 완료 후
-```
-python3 create_gt.py
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+* 결과
+![GT 제작](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/488860d6-3366-49f2-bc20-47401d22895e)
+이미지 데이터와 pose 정보의 개수가 일치하여 시간 동기화가 제대로 되어진 것을 확인 하였습니다. 그리고 실시간성이 더 좋아져 데이터 셋의 크기도 증가한것으로 확인 됩니다.
 
 
 # 취득한 GT AirLab Dataset으로 학습 및 테스트
 기존 dataset_train.txt 를 보면 3번쨰 라인까지 데이터의 정보에 대한 정보를 담고 있습니다. 해당 부분만 수정하여 학습을 진행하였습니다.
-![image](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/b8c7c415-c823-4586-b7b7-1c7337737294)
 ```
 class CustomDataset(Dataset):
     def __init__(self, image_path, metadata_path, mode, transform, num_val=100):
@@ -221,39 +186,20 @@ class CustomDataset(Dataset):
         self.lines = raw_lines[0:]  # 기존은 4번째 부터 
 ```
 
-## 학습실행 (GT 재제작 후 다시 학습)
-* 초기 학습 [ Epoch : 400, lr : 0.0001, dropout rate : 0.5, model 저장 : 50, batch_size : 16, num_epoch_decay : 50(감소율 0.1) ]
+## 학습실행 
 ```
-python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/poses_train.txt
+python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/poses_data_train.txt
 ```
-![첫번째 학습](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/4fc52b0e-06a6-4e37-ade4-7acf66d036a3)
-![test](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/a664bc04-bab5-4949-8037-3ab8fbd14250)
+
 
 
 ### 최적의 파라미터 조합하기 ( 진행중 )
-* 초기 학습시 저장된 모델 test 해보기
-* num_val=3000 (검증 데이터 증가)
-1. 첫번쨰
 ```
 python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/poses_train.txt --batch_size 32 --num_epochs 150 --lr 0.001 --num_epochs_decay 25 --model_save_step 25
 ```
-![파라미터 조정후 학습](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/133f5ff7-8bc7-4b5d-9ba4-bf95dd11204e)
-
-그러나 테스트 값의 pose error가 100이 넘어가는 것을 확인하였습니다. 과적합된것으로 판단하였습니다.
-
-2. 두번째
 ```
 python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/poses_train.txt --batch_size 32 --num_epochs 300 --model_save_step 10 --sample_step 100 --lr 0.001 --num_epochs_decay 20 --num_workers 6
 ```
-![두번째 학습](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/b05e176b-3f46-4f98-a295-c1f466104363)
-![두번째 그래프](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/2f792354-d81c-439f-a1cd-633ac8dc3506)
-![image(1)](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/38d02035-92f7-4a5c-8bc4-568c33fefb95)
-
-
-
-
-
-
 
 # Test dataset으로 실시간으로 GT의 pose정보와 Predict한 pose정보를 Rviz상에서 시각화하기
 ## Predict한 Pose RViz상에 시각화 하기
