@@ -188,17 +188,17 @@ class CustomDataset(Dataset):
 
 ## 학습실행 
 ```
-python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/poses_data_train.txt
+python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_train.txt
 ```
 
 
 
 ### 최적의 파라미터 조합하기 ( 진행중 )
 ```
-python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/poses_train.txt --batch_size 32 --num_epochs 150 --lr 0.001 --num_epochs_decay 25 --model_save_step 25
+python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_train.txt --batch_size 32 --num_epochs 150 --lr 0.001 --num_epochs_decay 25 --model_save_step 25
 ```
 ```
-python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/poses_train.txt --batch_size 32 --num_epochs 300 --model_save_step 10 --sample_step 100 --lr 0.001 --num_epochs_decay 20 --num_workers 6
+python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_train.txt --batch_size 32 --num_epochs 300 --model_save_step 10 --sample_step 100 --lr 0.001 --num_epochs_decay 20 --num_workers 6
 ```
 
 # Test dataset으로 실시간으로 GT의 pose정보와 Predict한 pose정보를 Rviz상에서 시각화하기
