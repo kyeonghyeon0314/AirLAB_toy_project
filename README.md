@@ -174,7 +174,7 @@ rosbag play data_train.bag --clock
 
 
 # 취득한 GT AirLab Dataset으로 학습 및 테스트
-기존 dataset_train.txt 를 보면 3번쨰 라인까지 데이터의 정보에 대한 정보를 담고 있습니다. 해당 부분만 수정하여 학습을 진행하였습니다.
+기존 KingsCollege의 dataset_train.txt 를 보면 3번쨰 라인까지 데이터의 정보에 대한 정보를 담고 있습니다. 해당 부분만 수정하여 학습을 진행하였습니다.
 ```
 class CustomDataset(Dataset):
     def __init__(self, image_path, metadata_path, mode, transform, num_val=100):
