@@ -136,11 +136,75 @@ PoseNet 학습시 dataloader.py 만들기 용이하게 pose 데이터를 하나�
 
 https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/93003094-f34e-4798-8cde-25a0dd92db13
 
+
+
+
+
+
+
+
+
+
 ## LeGO-LOAM 활용(실시간성 용이)
-* lego-loam 실행
+패키지 생성 및 빌드
 ```
+cd ~/catkin_ws/src
+catkin_create_pkg image_pose_sync rospy std_msgs sensor_msgs nav_msgs
+cd ~/catkin_ws
+chmod +x /catkin_ws/src/image_pose_sync/scripts/image_pose_sync.py
+catkin_make
+```
+
+실행 파일 제작
+```
+mkdir script
+touch image_pose_sync.py
+```
+* 실행 과정
+```
+roscore
 roslaunch lego_loam run.launch
+rosrun image_pose_sync image_pose_sync.py
+rosbag play data_train.bag --clock
 ```
+위 과정 완료 후
+```
+python3 create_gt.py
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # 취득한 GT AirLab Dataset으로 학습 및 테스트
