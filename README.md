@@ -102,7 +102,7 @@ rosbag reindex dataset_test.bag
 ```
 * 결과 확인(이미지 와 pose 정보가 동기화되어 저장되었는지 확인)
 
-[위에 영상 첨부](https://github.com/kyeonghyeon0314/PoseNet-Pytorch-visual-localization.git)
+[LeGO-LOAM 실행 및 GT 제작 영상 첨부 (github_upload - Clipchamp로 제작 (1))](https://github.com/kyeonghyeon0314/PoseNet-Pytorch-visual-localization.git)
 
 ![Screenshot from 2024-07-07 16-58-38](https://github.com/kyeonghyeon0314/PoseNet-Pytorch-visual-localization/assets/132433953/51360090-9b0a-4edd-af69-a9473508292a)
 
