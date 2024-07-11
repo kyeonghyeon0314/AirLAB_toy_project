@@ -187,9 +187,16 @@ class CustomDataset(Dataset):
 ```
 
 ## 학습실행 
+* 기본 셋팅( Epcoch 400 , lr 0.001 , num_epochs_decay 50, drop_rate 0.5 , batch_size 16 )
 ```
-python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_train.txt
+python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_train.txt --model_save_step 25
 ```
+![초기 학습 결과](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/951b8828-677e-4d16-bba0-ee9afb0eb697)
+![초기 학습 그래프](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/23dde532-221a-4b0e-8195-af2e333c2443)
+그래픽 카드가 노트북 이긴 하지만 4060임에도 불구하고 학습 시간이 상당히 오래 걸렸습니다. 또한 loss 는 계속 줄어 드는데 테스트 오차(특히 pose 오차)가 상당히 큽니다. 과적합으로 판단하여 파라미터 조정후 재학습 진행 하였습니다.
+![149 모델](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/793727ca-5930-4918-b468-6d196b18e313)
+![249](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/eb6f3a65-4cfe-4d96-b2a0-80025737cf28)
+![399](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/65f57937-fd1c-4203-b437-f0feb487e16b)
 
 
 
