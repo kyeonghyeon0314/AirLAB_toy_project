@@ -189,9 +189,27 @@ python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/
 
 
 ### 최적의 파라미터 조합하기 ( 진행중 )
+* 파라미터 조정(batch_size 32 , num_epochs 100 , lr 0.001 , num_epochs_decay 25 , model_save_step 25 , num_workers 8)
 ```
-python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_train.txt --batch_size 32 --num_epochs 150 --lr 0.001 --num_epochs_decay 25 --model_save_step 25
+python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_train.txt --batch_size 32 --num_epochs 100 --lr 0.001 --num_epochs_decay 25 --model_save_step 25 --num_workers 8
 ```
+![2번째 학습](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/3f7d987c-de59-4052-84f3-6c37cfb7c7db)
+![Screenshot from 2024-07-11 17-01-14](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/f11bf4e2-d780-4de3-a664-0d3b2d0ada2d)
+
+
+
+테스트 결과
+![Screenshot from 2024-07-11 16-59-54](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/958f0a5d-44cf-4bc5-9405-1e351a0ff8d6)
+![Screenshot from 2024-07-11 17-03-58](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/01636859-6bc6-4181-bd86-831b0ca7a697)
+![Screenshot from 2024-07-11 17-06-33](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/1bf2cd2c-8ae9-4b00-b563-dd73ff750cce)
+![Screenshot from 2024-07-11 17-08-54](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/05d2b556-fded-40ad-bcd7-dd8a3b42ef7f)
+테스트 결과를 확인하면 후반부에 갑자기 loss가 증가하는 것을 확인 할 수 있습니다. 정보를 찾아보니 lego-loam 에서 나오는 ```/laser_odom_to_init```토픽을 사용하면 시간이 지남에 따라 드리프트가 발생할 수 있다고 합니다. 반면 ```/integrated_to_init``` 토픽을 사용하면 드리프트를 줄이고 전역적으로 보정된 위치를 제공하여 장시간 주행에서도 안정적인 위치 추정을 제공한다고 합니다. 이점을 착안하여 GT를 다시 제작하도록 하겠습니다. 
+
+추가적으로 모델을 보니 ResNet34를 사용하고 있는데 좀더 높은 정확도를 사용하기 위해 좀더 다층의 ResNet 모델을 추가 하였습니다.
+
+
+
+
 ```
 python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_train.txt --batch_size 32 --num_epochs 300 --model_save_step 10 --sample_step 100 --lr 0.001 --num_epochs_decay 20 --num_workers 6
 ```
