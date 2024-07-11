@@ -240,7 +240,7 @@ python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/
 
 
 ```
-python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_train.txt --batch_size 32 --num_epochs 300 --model_save_step 10 --sample_step 100 --lr 0.001 --num_epochs_decay 20 --num_workers 6
+python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_train.txt --batch_size 32 --num_epochs 200 --lr 0.0001 --num_epochs_decay 25  --model_save_step 5 --num_workers 8 --pretrained_model 24 --dropout_rate 0.3
 ```
 
 # Test dataset으로 실시간으로 GT의 pose정보와 예측한 pose값을 Rviz상에서 시각화하기
