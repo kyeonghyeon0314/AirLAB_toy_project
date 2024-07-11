@@ -217,9 +217,23 @@ python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/
 추가적으로 모델을 보니 ResNet34를 사용하고 있는데 좀더 높은 정확도를 사용하기 위해 좀더 다층의 ResNet 모델을 추가 하였습니다.
 
 ## 학습실행(intergrated_to_init 토픽 사용)
+추가적으로 모델을 보니 ResNet34를 사용하고 있는데 좀더 높은 정확도를 사용하기 위해 좀더 다층의 ResNet 모델을 추가 하였습니다.(기본 : 34 , 추가 : 54, 101, 152)```dataloader.py``` , ```train.py``` , ```model.py``` 수정
+
+* 첫번쨰 시도 : 바로 이전 학습 결과를 보면 400 epoch 학습을 한것과 비슷한 결과를 보여 학습 시간을 줄이기 위해 epoch을 100으로 줄여 진행하였습니다.
 ```
 python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_train.txt --batch_size 32 --num_epochs 100 --lr 0.001 --num_epochs_decay 25 --model_save_step 25 --num_workers 8
 ```
+학습결과
+
+
+
+
+
+
+
+
+
+
 
 
 ```
