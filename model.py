@@ -17,6 +17,7 @@ from PIL import Image
 
 def model_parser(model, fixed_weight=False, dropout_rate=0.0, bayesian=False):
     base_model = None
+    network = None # reset
 
     if model == 'Googlenet':
         base_model = models.inception_v3(pretrained=True)
@@ -37,7 +38,7 @@ def model_parser(model, fixed_weight=False, dropout_rate=0.0, bayesian=False):
         base_model = models.resnet34(pretrained=True)
         network = ResNetSimple(base_model, fixed_weight)
     else:
-        assert 'Unvalid Model'
+        raise ValueError(f"Invalid model name: {model}") # 확인
 
     return network
 
