@@ -226,6 +226,18 @@ python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/
 python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_train.txt --batch_size 32 --num_epochs 100 --lr 0.001 --num_epochs_decay 25 --model_save_step 25 --num_workers 8
 ```
 학습결과
+![Screenshot from 2024-07-11 22-52-19](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/ccd6a848-4003-4923-a9f6-9d9b24580f3a)
+![Screenshot from 2024-07-11 22-51-11](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/02ee63ff-08bf-41df-a15b-fb5f87e7de72)
+
+```
+python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_train.txt --batch_size 32 --num_epochs 25 --lr 0.001 --num_epochs_decay 5  --model_save_step 5 --num_workers 8
+```
+![Screenshot from 2024-07-12 00-03-52](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/4975fc13-b544-4764-a10b-4281a679faa5)
+![Screenshot from 2024-07-12 00-10-57](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/2b0a4b40-9dad-4fb5-93cb-c35723edf701)
+계속해서 해보아도 rotation_loss 가 일정 값으로 수렴하지 않습니다. 
+
+
+
 
 ```
 python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_train.txt --batch_size 32 --num_epochs 300 --model_save_step 10 --sample_step 100 --lr 0.001 --num_epochs_decay 20 --num_workers 6
