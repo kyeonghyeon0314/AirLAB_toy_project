@@ -214,7 +214,7 @@ python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/
 ![Screenshot from 2024-07-11 17-08-54](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/05d2b556-fded-40ad-bcd7-dd8a3b42ef7f)
 테스트 결과를 확인하면 후반부에 갑자기 loss가 증가하는 것을 확인 할 수 있습니다. 정보를 찾아보니 lego-loam 에서 나오는 ```/laser_odom_to_init```토픽을 사용하면 시간이 지남에 따라 드리프트가 발생할 수 있다고 합니다. 반면 ```/integrated_to_init``` 토픽을 사용하면 드리프트를 줄이고 전역적으로 보정된 위치를 제공하여 장시간 주행에서도 안정적인 위치 추정을 제공한다고 합니다. 이점을 착안하여 GT를 다시 제작하도록 하겠습니다. 
 
-추가적으로 모델을 보니 ResNet34를 사용하고 있는데 좀더 높은 정확도를 사용하기 위해 좀더 다층의 ResNet 모델을 추가 하였습니다.
+추가적으로 모델을 보니 ResNet34를 사용하고 있는데 좀더 높은 정확도를 사용하기 위해 좀더 다층의 ResNet 모델을 추가 하였습니다. 그러나 이는 학습 단계에서 실습 하는 정도로만 사용하고 향후 실시간으로 pose를 추론 할때는 제일 얇은 층인 34를 이용하는 것이 좋을 것 같습니다.
 
 
 
@@ -258,13 +258,20 @@ rosbag play dataset_test.bag
 ```
 아래 영상은 bag 파일에서 나오는 토픽을 가지고 학습된 PoseNet모델로 pose를 추정하는 영상입니다. 35초 부터 영상을 보시면 bag파일 play는 멈췄지만 실시간성이 좋지 않아 계속해서 추정을 하고 있는 모습을 볼 수 있습니다. 
 
+아래 
 https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/93003094-f34e-4798-8cde-25a0dd92db13
 
 ## GT의 Pose 정보를 RViz 상에 시각화 하기
 
 
-
-
+# 예측한 Pose값을 RViz상에 시각화 노드 제작(2)
+```
+cd ~/catkin_ws/src
+catkin_create_pkg Visualization rospy std_msgs sensor_msgs geometry_msgs
+cd ~/catkin_ws/src/Visualization/scripts
+chmod +x predict_pose.py
+rosrun Visualizaton predict_pose.py --model Resnet34 --pretrained 39
+```
 
 
 
