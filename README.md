@@ -156,7 +156,15 @@ roslaunch lego_loam run.launch
 rosrun image_pose_sync image_pose_sync.py --mode train
 rosbag play dataset_train.bag --clock
 ```
+
+* 수정사항
+  ```
+  # ROS 토픽 구독
+  rospy.Subscriber('/integrated_to_init', Odometry, self.pose_callback) # laser_odom_to_init 토픽 변경
+  rospy.Subscriber('/zed/left/image_rect_color/compressed', CompressedImage, self.image_callback)
+  ```
 * 결과
+![Screenshot from 2024-07-11 18-12-18](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/b152b840-dfed-466c-a23a-7d4bee9f95ca)
 ![GT 제작](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/488860d6-3366-49f2-bc20-47401d22895e)
 이미지 데이터와 pose 정보의 개수가 일치하여 시간 동기화가 제대로 되어진 것을 확인 하였습니다. 그리고 실시간성이 더 좋아져 데이터 셋의 크기도 증가한것으로 확인됩니다.
 
@@ -174,7 +182,8 @@ class CustomDataset(Dataset):
         self.lines = raw_lines[0:]  # 기존은 4번째 부터 
 ```
 
-## 학습실행 
+## 학습실행(laser_odom_to_init 토픽 사용)
+학습 데이터 셋이 3만개 정도 되어 그것의 10%인 3000개의 데이터를 검증 데이터로 지정하였습니다. ```num_val=3000```
 * 기본 셋팅( Epcoch 400 , lr 0.001 , num_epochs_decay 50, drop_rate 0.5 , batch_size 16 )
 ```
 python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_train.txt --model_save_step 25
@@ -207,7 +216,10 @@ python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/
 
 추가적으로 모델을 보니 ResNet34를 사용하고 있는데 좀더 높은 정확도를 사용하기 위해 좀더 다층의 ResNet 모델을 추가 하였습니다.
 
-
+## 학습실행(intergrated_to_init 토픽 사용)
+```
+python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_train.txt --batch_size 32 --num_epochs 100 --lr 0.001 --num_epochs_decay 25 --model_save_step 25 --num_workers 8
+```
 
 
 ```
