@@ -132,18 +132,6 @@ PoseNet 학습시 dataloader.py 만들기 용이하게 pose 데이터를 하나�
 
 + 학습에는 지장이 없었는데 test 과정에서 문제가 생겨 GT를 좀더 상황에 맞게 설정후 다시 학습을 시켰습니다.(7/09/02:11)
 
-아래 영상은 bag 파일에서 나오는 토픽을 가지고 학습된 PoseNet모델로 pose를 추정하는 영상입니다. 35초 부터 영상을 보시면 bag파일 play는 멈췄지만 실시간성이 좋지 않아 계속해서 추정을 하고 있는 모습을 볼 수 있습니다. 
-
-https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/93003094-f34e-4798-8cde-25a0dd92db13
-
-
-
-
-
-
-
-
-
 
 ## LeGO-LOAM 활용(실시간성 용이)
 패키지 생성 및 빌드
@@ -170,10 +158,10 @@ rosbag play data_train.bag --clock
 ```
 * 결과
 ![GT 제작](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/488860d6-3366-49f2-bc20-47401d22895e)
-이미지 데이터와 pose 정보의 개수가 일치하여 시간 동기화가 제대로 되어진 것을 확인 하였습니다. 그리고 실시간성이 더 좋아져 데이터 셋의 크기도 증가한것으로 확인 됩니다.
+이미지 데이터와 pose 정보의 개수가 일치하여 시간 동기화가 제대로 되어진 것을 확인 하였습니다. 그리고 실시간성이 더 좋아져 데이터 셋의 크기도 증가한것으로 확인됩니다.
 
 
-# 취득한 GT AirLab Dataset으로 학습 및 테스트
+# 취득한 GT Test Dataset으로 학습 및 테스트
 기존 KingsCollege의 dataset_train.txt 를 보면 3번쨰 라인까지 데이터의 정보에 대한 정보를 담고 있습니다. 해당 부분만 수정하여 학습을 진행하였습니다.
 ```
 class CustomDataset(Dataset):
@@ -208,13 +196,15 @@ python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/
 python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_train.txt --batch_size 32 --num_epochs 300 --model_save_step 10 --sample_step 100 --lr 0.001 --num_epochs_decay 20 --num_workers 6
 ```
 
-# Test dataset으로 실시간으로 GT의 pose정보와 Predict한 pose정보를 Rviz상에서 시각화하기
-## Predict한 Pose RViz상에 시각화 하기
+# Test dataset으로 실시간으로 GT의 pose정보와 예측한 pose값을 Rviz상에서 시각화하기
+## 예측한 Pose값을 RViz상에 시각화 노드 제작
 패키지 생성
 ```
 catkin_create_pkg <패키지 이름> cv_bridge geometry_msgs message_filters rospy visualization_msgs
-
 ```
+CMakelist와 package.xml 에 의존성 추가 및 수정 한 부분 있습니다.
+
+
 실행 코드 파일 생성
 ```
 touch PoseNet_predictor.py  #생성 후 코드 작성
@@ -231,6 +221,13 @@ rosrun {패키지명} pose_visualizer.py
 rviz
 rosbag play dataset_test.bag
 ```
+아래 영상은 bag 파일에서 나오는 토픽을 가지고 학습된 PoseNet모델로 pose를 추정하는 영상입니다. 35초 부터 영상을 보시면 bag파일 play는 멈췄지만 실시간성이 좋지 않아 계속해서 추정을 하고 있는 모습을 볼 수 있습니다. 
+
+https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/93003094-f34e-4798-8cde-25a0dd92db13
+
+## GT의 Pose 정보를 RViz 상에 시각화 하기
+
+
 
 
 
