@@ -154,7 +154,7 @@ CMakelist와 package xml 도 수정 하였습니다.
 roscore
 roslaunch lego_loam run.launch
 rosrun image_pose_sync image_pose_sync.py --mode train
-rosbag play data_train.bag --clock
+rosbag play dataset_train.bag --clock
 ```
 * 결과
 ![GT 제작](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/488860d6-3366-49f2-bc20-47401d22895e)
