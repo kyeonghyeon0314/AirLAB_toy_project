@@ -273,9 +273,14 @@ rosbag play dataset_test.bag
 아래 
 https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/93003094-f34e-4798-8cde-25a0dd92db13
 
+
+https://github.com/user-attachments/assets/4aa0dc4a-5702-4be7-ae39-4c4ac3e08a93
+
+
 ## GT의 Pose 정보를 RViz 상에 시각화 하기
+전에 제작한 ```PoseNet_predictor.py```GPU를 사용하여 모델 추론을 가속화하고 있었지만, CPU에서의 전처리와 변환 과정이 병목이 되어 전체 시스템의 성능을 저하시켜 추론을 하는데 딜레이가 생긴 것으로 추론합니다.
 
-
+위 영상의 35초 쯤 보시면 bag파일의 실행이 중단 되어도 계속해서 예측을 하고 있는 모습을 볼수 있습니다.
 # 예측한 Pose값을 RViz상에 시각화 노드 제작(2)
 ```
 cd ~/catkin_ws/src
@@ -284,6 +289,9 @@ cd ~/catkin_ws/src/Visualization/scripts
 chmod +x predict_pose.py
 rosrun Visualizaton predict_pose.py --model Resnet34 --pretrained 39
 ```
+아래 영상은 GPU 가속 활용과 이미지 변환 과정을 줄여 딜레이가 존재하지 않은 것을 볼 수 있습니다. 다만 아직 PoseNet 학습이 부족한 상황이라 예측값이 많이 벗어나고 있는 상황입니다.
+
+![Screencastfrom20240712223058-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/06f72983-1df4-4bb9-8e78-b7a1e5495f61)
 
 
 
