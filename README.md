@@ -229,13 +229,21 @@ python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/
 ![Screenshot from 2024-07-11 22-52-19](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/ccd6a848-4003-4923-a9f6-9d9b24580f3a)
 ![Screenshot from 2024-07-11 22-51-11](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/02ee63ff-08bf-41df-a15b-fb5f87e7de72)
 
+* 두번쨰 시도
 ```
 python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_train.txt --batch_size 32 --num_epochs 25 --lr 0.001 --num_epochs_decay 5  --model_save_step 5 --num_workers 8
 ```
 ![Screenshot from 2024-07-12 00-03-52](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/4975fc13-b544-4764-a10b-4281a679faa5)
 ![Screenshot from 2024-07-12 00-10-57](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/2b0a4b40-9dad-4fb5-93cb-c35723edf701)
 계속해서 해보아도 rotation_loss 가 일정 값으로 수렴하지 않습니다. 
-
+* 여섯번째 시도( 그전의 시도들은 기록을 안하기도 하였고 의미가 없는 결과가 나왔습니다.)
+```
+python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_train.txt --batch_size 32 --num_epochs 35 --lr 0.001 --num_epochs_decay 5  --model_save_step 5 --num_workers 8
+```
+![image](https://github.com/user-attachments/assets/574a3586-3c95-428f-8f10-045a94ea61b3)
+![image](https://github.com/user-attachments/assets/68466b63-1b11-4f81-8ca8-4239e3eca497)
+![image](https://github.com/user-attachments/assets/9997239c-fae5-4407-8d21-708947514393)
+해당 학습의 34번째 모델의 시험 하였을 때 중간에 갑자기 poss error가 100,200으로 올라 평균값이 크게 나왔지만 전반적으로 20~30 정도의 error가 나오는것을 확인했습니다. 향후 ```34_net.pth```에서 추가 학습을 진행해 최적화 해보도록 하겠습니다.
 
 
 
