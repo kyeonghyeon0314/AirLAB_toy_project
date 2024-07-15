@@ -278,8 +278,6 @@ rosbag play dataset_test.bag
 ```
 아래 영상은 bag 파일에서 나오는 토픽을 가지고 학습된 PoseNet모델로 pose를 추정하는 영상입니다. 35초 부터 영상을 보시면 bag파일 play는 멈췄지만 실시간성이 좋지 않아 계속해서 추정을 하고 있는 모습을 볼 수 있습니다. 
 
-아래 
-https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/93003094-f34e-4798-8cde-25a0dd92db13
 
 
 https://github.com/user-attachments/assets/4aa0dc4a-5702-4be7-ae39-4c4ac3e08a93
