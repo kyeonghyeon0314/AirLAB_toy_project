@@ -251,7 +251,7 @@ python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/
 python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_train.txt --batch_size 32 --num_epochs 200 --lr 0.0001 --num_epochs_decay 25  --model_save_step 5 --num_workers 8 --pretrained_model 24 --dropout_rate 0.3
 ```
 # 생성한 GT Pose를 Rviz 상에 시각화 하기
-1차적으로 만든 시각화 노드를 실행해 보았을때 원래의 방향과 반대의 방향으로 진행을 하기에 GT가 잘못 생성이 되었나 생각하여 검토를 하였습니다. 확인 결과 시간동기화가 안되어 있는 것을 확인 하였습니다. 그러하여 일부 수정하여 다시 GT를 제작해 보았습니다.
+1차적으로 만든 시각화 노드(```gt_visual```)를 실행해 보았을때 원래의 방향과 반대의 방향으로 진행을 하기에 GT가 잘못 생성이 되었나 생각하여 검토를 하였습니다. 확인 결과 시간동기화가 안되어 있는 것을 확인 하였습니다. 그러하여 일부 수정하여 다시 GT를 제작해 보았습니다.
 
 다시 제작한 GT에 맞게 ```visualize_pose.py```를 수정하였습니다.
 
