@@ -19,7 +19,22 @@ def parse_gt_file(file_path):
             poses.append((timestamp, (px, py, pz, qx, qy, qz, qw)))
     return poses
 
+def transform_pose(pose):
+    px, py, pz = pose[0], pose[1], pose[2]
+    qx, qy, qz, qw = pose[3], pose[4], pose[5], pose[6]
+    
+    transformed_px = px
+    transformed_py = pz
+    transformed_pz = -py
+    
+    quat = [qx, qy, qz, qw]
+    rpy = tft.euler_from_quaternion_from_euler(quat)
+    transformed_quat = tft.quaternion_from_euler(rpy[0], rpy[2], -rpy[1])
+    
+    return transformed_px, transformed_py, transformed_pz, transformed_quat[0], transformed_quat[1], transformed_quat[2], transformed_quat[3]
+
 def publish_pose(publisher, pose):
+    transformed_pose = transform_pose(pose)
     pose_msg = Pose()
     pose_msg.pose.position.x = pose[0]
     pose_msg.pose.position.y = pose[1]
