@@ -20,19 +20,15 @@ def parse_gt_file(file_path):
     return poses
 
 def publish_pose(publisher, pose):
-    pose_array_msg = PoseArray()
-    pose_array_msg.header.frame_id = 'map'
-    for timestamp, pose in poses:
-        pose_msg = Pose()
-        pose_msg.pose.position.x = pose[0]
-        pose_msg.pose.position.y = pose[1]
-        pose_msg.pose.position.z = pose[2]
-        pose_msg.pose.orientation.x = pose[3]
-        pose_msg.pose.orientation.y = pose[4]
-        pose_msg.pose.orientation.z = pose[5]
-        pose_msg.pose.orientation.w = pose[6]
-        pose_array_msg.poses.append(pose_msg)
-    publisher.publish(pose_array_msg)
+    pose_msg = Pose()
+    pose_msg.pose.position.x = pose[0]
+    pose_msg.pose.position.y = pose[1]
+    pose_msg.pose.position.z = pose[2]
+    pose_msg.pose.orientation.x = pose[3]
+    pose_msg.pose.orientation.y = pose[4]
+    pose_msg.pose.orientation.z = pose[5]
+    pose_msg.pose.orientation.w = pose[6]
+    return pose_msg
 
 def main():
     rospy.init_node('gt_pose_visualizer', anonymous=True)
@@ -42,9 +38,15 @@ def main():
     poses = parse_gt_file(gt_file_path)
 
     rate = rospy.Rate(1)  # 1 Hz
+    pose_array_msg = PoseArray()
+    pose_array_msg.header.frame_id = 'map'
 
-    while not rospy.is_shutdown():
-        publish_pose(pose_publisher, poses)
+    for timestamp, pose in poses:
+        if rospay.is_shutdown():
+            break
+        pose_msg = publish_pose(pose_publisher, pose)
+        pose_array_msg.poses.append(pose_msg)
+        pose_publisher.publish(pose_array_msg)
         rate.sleep()
 
 if __name__ == '__main__':
