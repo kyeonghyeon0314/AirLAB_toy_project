@@ -8,6 +8,7 @@ import cv2
 from cv_bridge import CvBridge, CvBridgeError
 import argparse
 import numpy as np  # numpy 모듈 추가
+import message_filters # 모듈 추가
 
 class ImagePoseSync:
     def __init__(self, mode):
@@ -34,33 +35,32 @@ class ImagePoseSync:
         
         self.bridge = CvBridge()
         
-        # ROS 토픽 구독
-        rospy.Subscriber('/laser_odom_to_init', Odometry, self.pose_callback)
-        rospy.Subscriber('/zed/left/image_rect_color/compressed', CompressedImage, self.image_callback)
+        # ROS 토픽 구독(message_filters 추가)
+        odom_sub = message_filters.Subscriber('/laser_odom_to_init', Odometry)
+        image_sub = mesage_filters.Subscriber('/zed/left/image_rect_color/compressed', CompressedImage)
         
-        # 현재 포즈를 저장하는 변수
+        ts = message_filters.ApproximateTimeSynchronizer([odom_sub, image_sub], 10, 0.1)
+        ts.registerCallback(self.callback)
+        
         self.current_pose = None
-        
-    def pose_callback(self, data):
+
+    # 이미지 pose 콜백 함수 병합
+    def callback(self, odometry, compressedImage):
         self.current_pose = [
-            data.header.stamp.to_sec(),
-            data.pose.pose.position.x,
-            data.pose.pose.position.y,
-            data.pose.pose.position.z,
-            data.pose.pose.orientation.x,
-            data.pose.pose.orientation.y,
-            data.pose.pose.orientation.z,
-            data.pose.pose.orientation.w
+            odometry.header.stamp.to_sec(),
+            odometry.pose.pose.position.x,
+            odometry.pose.pose.position.y,
+            odometry.pose.pose.position.z,
+            odometry.pose.pose.orientation.x,
+            odometry.pose.pose.orientation.y,
+            odometry.pose.pose.orientation.z,
+            odometry.pose.pose.orientation.w
         ]
         
-    def image_callback(self, data):
-        if self.current_pose is None:
-            return
-        
         try:
-            np_arr = np.frombuffer(data.data, np.uint8)  # np.fromstring -> np.frombuffer로 수정
+            np_arr = np.frombuffer(compressedImage.data, np.unit8)
             cv_image = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
-            timestamp = data.header.stamp.to_sec()
+            timestamp = compressedImage.header.stamp.to_sec()
             image_filename = f'image_{timestamp:.6f}.jpg'
             image_path = os.path.join(self.image_folder, image_filename)
             cv2.imwrite(image_path, cv_image)
