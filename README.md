@@ -209,7 +209,7 @@ def transform_pose(pose):
 어느 한 코너에서 아래 사진과 오류 값이 존재 하지만 전반적으로 GT가 잘 생성 된것을 보아 학습에 지장은 없을 것으로 보입니다.
 ![2](https://github.com/user-attachments/assets/b871c299-767c-4101-8e1e-d163dd2b1267)
 
-# 취득한 GT Test Dataset으로 학습 및 테스트
+# 취득한 GT로 PoseNet 학습 및 테스트
 기존 KingsCollege의 dataset_train.txt 를 보면 3번쨰 라인까지 데이터의 정보에 대한 정보를 담고 있습니다. 해당 부분만 수정하여 학습을 진행하였습니다.
 ```
 class CustomDataset(Dataset):
@@ -223,7 +223,7 @@ class CustomDataset(Dataset):
 ```
 
 
-## 학습실행(laser_odom_to_init)
+## 학습실행
 학습 데이터 셋이 1만개 정도 되어 그것의 10%인 1000개의 데이터를 검증 데이터로 지정하였습니다. ```num_val=1000```
 
 추가적으로 모델을 보니 ResNet34를 사용하고 있는데 좀더 높은 정확도를 사용하기 위해 좀더 다층의 ResNet 모델을 추가 하였습니다.(기본 : 34 , 추가 : 50, 101, 152)```dataloader.py``` , ```train.py``` , ```model.py``` 수정
@@ -246,56 +246,41 @@ python3 test.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/p
 축 변환하기 전에는 poss error가 100을 넘어 갔었는데 현재 축을 변환을 해서 데이터 전처리를 하니 ```test```결과가 올바르게 나온것을 확인 할 수 있었습니다.
 
 
-# Test dataset으로 실시간으로 GT의 pose정보와 예측한 pose값을 Rviz상에서 시각화하기
+# 실시간으로 GT의 pose정보와 예측한 pose값을 Rviz상에서 시각화하기
+##Test 데이터 셋의 이미지와 pose 정보 발행
+이미지와 pose 정보를 담은 각각의 토픽을 동시간에 같은 주기로 발행 하는 노드 작성하기 실행 파일 ```image_pose_publisher.py```
+
+pose 토픽을 발행 할때는 ```transform_pose```함수를 활용하여 발행 
 
 ## 예측한 Pose값을 RViz상에 시각화 노드 제작
-
-패키지 생성
-```
-catkin_create_pkg <패키지 이름> cv_bridge geometry_msgs message_filters rospy visualization_msgs
-```
-CMakelist와 package.xml 에 의존성 추가 및 수정 한 부분 있습니다.
-
-
-실행 코드 파일 생성
-```
-touch PoseNet_predictor.py  #생성 후 코드 작성
-```
-실행 권한 부여하기
-```
-chmod +x /catkin_ws/src/synchronizing/scripts/PoseNet_predictor.py
-```
-
-* ROS 실행 순서
-```
-roscore
-rosrun {패키지명} pose_visualizer.py
-rviz
-rosbag play dataset_test.bag
-```
-아래 영상은 bag 파일에서 나오는 토픽을 가지고 학습된 PoseNet모델로 pose를 추정하는 영상입니다. 35초 부터 영상을 보시면 bag파일 play는 멈췄지만 실시간성이 좋지 않아 계속해서 추정을 하고 있는 모습을 볼 수 있습니다. 
-
-
-
-https://github.com/user-attachments/assets/4aa0dc4a-5702-4be7-ae39-4c4ac3e08a93
-
-
-## GT의 Pose 정보를 RViz 상에 시각화 하기
-전에 제작한 ```PoseNet_predictor.py```GPU를 사용하여 모델 추론을 가속화하고 있었지만, CPU에서의 전처리와 변환 과정이 병목이 되어 전체 시스템의 성능을 저하시켜 추론을 하는데 딜레이가 생긴 것으로 추론합니다.
-
-위 영상의 35초 쯤 보시면 bag파일의 실행이 중단 되어도 계속해서 예측을 하고 있는 모습을 볼수 있습니다.
-# 예측한 Pose값을 RViz상에 시각화 노드 제작(2)
+발행된 이미지 를 학습된 PoseNet 모델에 입력하여 pose 값 예측 후 예측된 pose 값을 발행
+```image_to_pose_pridict.py```
+## 패키지 생성
+예측
 ```
 cd ~/catkin_ws/src
-catkin_create_pkg Visualization rospy std_msgs sensor_msgs geometry_msgs
-cd ~/catkin_ws/src/Visualization/scripts
-chmod +x predict_pose.py
-rosrun Visualizaton predict_pose.py --model Resnet34 --pretrained 39
+catkin_create_pkg pose_prediction rospy std_msgs sensor_msgs geometry_msgs
+mkdir -p ~/catkin_ws/src/pose_prediction/scripts
+cd ~/catkin_ws/src/pose_prediction/scripts
+touch image_to_pose_predict.py
 ```
-아래 영상은 GPU 가속 활용과 이미지 변환 과정을 줄여 딜레이가 존재하지 않은 것을 볼 수 있습니다. 다만 아직 PoseNet 학습이 부족한 상황이라 예측값이 많이 벗어나고 있는 상황입니다.
+발행
+```
+cd ~/catkin_ws/src
+catkin_create_pkg image_publisher rospy std_msgs sensor_msgs geometry_msgs
+mkdir -p ~/catkin_ws/src/image_publisher/scripts
+cd ~/catkin_ws/src/image_publisher/scripts
+touch image_pose_publisher.py
+```
 
-![Screencastfrom20240712223058-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/06f72983-1df4-4bb9-8e78-b7a1e5495f61)
-
+## RViz 상에 시각화
+```
+roscore
+rviz
+rosrun pose_prediction image_to_pose_predict.py --model Resnet50 --weight 24
+rosrun image_publisher image_pose_publisher.py
+```
+rviz에 토픽 추가후 관찰
 
 
 
