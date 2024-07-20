@@ -157,17 +157,56 @@ rosrun image_pose_sync image_pose_sync.py --mode train
 rosbag play dataset_train.bag --clock
 ```
 
+
+* 결과
+![Screenshot from 2024-07-11 18-12-18](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/b152b840-dfed-466c-a23a-7d4bee9f95ca)
+![GT 제작](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/488860d6-3366-49f2-bc20-47401d22895e)
+이미지 데이터와 pose 정보의 개수가 일치하여 시간 동기화가 제대로 되어진 것을 확인 하였습니다. 그리고 실시간성이 더 좋아져 데이터 셋의 크기도 증가한것으로 확인됩니다.
 * 수정사항
   ```
   # ROS 토픽 구독
   rospy.Subscriber('/integrated_to_init', Odometry, self.pose_callback) # laser_odom_to_init 토픽 변경
   rospy.Subscriber('/zed/left/image_rect_color/compressed', CompressedImage, self.image_callback)
   ```
-* 결과
-![Screenshot from 2024-07-11 18-12-18](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/b152b840-dfed-466c-a23a-7d4bee9f95ca)
-![GT 제작](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/488860d6-3366-49f2-bc20-47401d22895e)
-이미지 데이터와 pose 정보의 개수가 일치하여 시간 동기화가 제대로 되어진 것을 확인 하였습니다. 그리고 실시간성이 더 좋아져 데이터 셋의 크기도 증가한것으로 확인됩니다.
+수정후 train 데이터의 pose와 이미지 데이터의 개수는 11,513개로 줄어 들었습니다.
 
+# 생성한 GT Pose를 Rviz 상에 시각화 하기(Test 데이터 셋을 예시로)
+생성된 GT를 PoseNet에 학습 시키기 전에 데이터를 처리를 어떤형식으로 하면 좋을지 알아야 하므로 GT를 먼저 RViz 상에 시각화 하는것이 좋다는 것을 깨달았습니다. 이전에 데이터의 형상을 파악하지 않고 무턱대고 학습만 계속 시켰는데 학습은 제대로 되어지고 있지만 test error가 줄어들지 않는 모습을 보였습니다. 이번 기회에 데이터 전처리 과정이 얼마나 중요한지 몸으로 느낄 수 있는 시간이였습니다. 
+우선 LeGO-LOAM을 이용하여 mapping을 하는 과정(아래 사진 참조) 을 보면 고정 축과 동체의 축이 많이 다르 다는 것을 확인 할 수 있습니다. GT의 pose를 동체의 축을 기준으로 다시 맞춰주는 ```transform_pose``` 함수를 추가 하였습니다.
+![5](https://github.com/user-attachments/assets/bfd58e3d-2718-4e19-93bb-90a3923c7033)
+
+이제 (```rosrun gt_visual visualize_pose.py```)를 실행해 보았을때 원래의 방향과 다른 방향으로 진행을 하돈 동체가 LeGO-LOAM 상의 동체의 움직임과 동일하게 움직이는 것을 확인 할 수 있습니다.
+
+```
+def transform_pose(pose):
+    px, py, pz = pose[0], pose[1], pose[2]
+    qx, qy, qz, qw = pose[3], pose[4], pose[5], pose[6]
+    
+    
+    transformed_px = -pz
+    transformed_py = -px
+    transformed_pz = py
+    
+    # 쿼터니언 변환
+    quat = [qx, qy, qz, qw]
+    rot_quat_x = tft.quaternion_from_euler(np.pi / 2, 0, 0)
+    
+    # z축을 기준으로 90도 회전하는 쿼터니언
+    rot_quat_z = tft.quaternion_from_euler(0, 0, -np.pi / 2)
+    
+    # 기존 쿼터니언과 두 회전 쿼터니언을 곱하여 새로운 쿼터니언 생성
+    quat_after_x = tft.quaternion_multiply(rot_quat_x, quat)
+    transformed_quat = tft.quaternion_multiply(rot_quat_z, quat_after_x)
+    
+    return transformed_px, transformed_py, transformed_pz, transformed_quat[0], transformed_quat[1], transformed_quat[2], transformed_quat[3]
+```
+아래 사진을 보면 축 변환및 회전 후 알맞은 움직임을 보이는 것을 확인 할 수 있습니다.
+![1](https://github.com/user-attachments/assets/61b1a4f1-14ff-43b4-92e4-e99e13044780)
+![3](https://github.com/user-attachments/assets/7a28c7ed-a0ac-4c52-8167-366a6a8b2279)
+![4](https://github.com/user-attachments/assets/b1a7c435-7cbf-4f4a-b7e9-1fb8c0a51853)
+
+어느 한 코너에서 아래 사진과 오류 값이 존재 하지만 전반적으로 GT가 잘 생성 된것을 보아 학습에 지장은 없을 것으로 보입니다.
+![2](https://github.com/user-attachments/assets/b871c299-767c-4101-8e1e-d163dd2b1267)
 
 # 취득한 GT Test Dataset으로 학습 및 테스트
 기존 KingsCollege의 dataset_train.txt 를 보면 3번쨰 라인까지 데이터의 정보에 대한 정보를 담고 있습니다. 해당 부분만 수정하여 학습을 진행하였습니다.
@@ -182,78 +221,19 @@ class CustomDataset(Dataset):
         self.lines = raw_lines[0:]  # 기존은 4번째 부터 
 ```
 
+
 ## 학습실행(laser_odom_to_init)
-학습 데이터 셋이 3만개 정도 되어 그것의 10%인 3000개의 데이터를 검증 데이터로 지정하였습니다. ```num_val=3000```
-* 기본 셋팅( Epcoch 400 , lr 0.001 , num_epochs_decay 50, drop_rate 0.5 , batch_size 16 )
+학습 데이터 셋이 1만개 정도 되어 그것의 10%인 1000개의 데이터를 검증 데이터로 지정하였습니다. ```num_val=1000```
+
+추가적으로 모델을 보니 ResNet34를 사용하고 있는데 좀더 높은 정확도를 사용하기 위해 좀더 다층의 ResNet 모델을 추가 하였습니다.(기본 : 34 , 추가 : 50, 101, 152)```dataloader.py``` , ```train.py``` , ```model.py``` 수정
+
+또한, 학습시 ```transform_pose```을 활용 해야 하므로 ```dataloader.py```에 ```transform_pose```함수를 추가하고 알맞게 적용 될수 있도록 설정하였습니다.
+
+* 기존 학습시 짧은 Epoch에 좋은 학습 경과를 보였던 셋팅
 ```
-python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_train.txt --model_save_step 25
+python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_train.txt --model Resnet50--batch_size 32 --num_epochs 25 --lr 0.001 --num_epochs_decay 5  --model_save_step 5 --num_workers 8
 ```
-![초기 학습 결과](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/951b8828-677e-4d16-bba0-ee9afb0eb697)
-![초기 학습 그래프](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/23dde532-221a-4b0e-8195-af2e333c2443)
-그래픽 카드가 노트북 이긴 하지만 4060임에도 불구하고 학습 시간이 상당히 오래 걸렸습니다. 또한 loss 는 계속 줄어 드는데 테스트 오차(특히 pose 오차)가 상당히 큽니다. 과적합으로 판단하여 파라미터 조정후 재학습 진행 하였습니다.
-![149 모델](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/793727ca-5930-4918-b468-6d196b18e313)
-![249](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/eb6f3a65-4cfe-4d96-b2a0-80025737cf28)
-![399](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/65f57937-fd1c-4203-b437-f0feb487e16b)
 
-
-
-### 최적의 파라미터 조합하기
-* 파라미터 조정(batch_size 32 , num_epochs 100 , lr 0.001 , num_epochs_decay 25 , model_save_step 25 , num_workers 8)
-```
-python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_train.txt --batch_size 32 --num_epochs 100 --lr 0.001 --num_epochs_decay 25 --model_save_step 25 --num_workers 8
-```
-![2번째 학습](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/3f7d987c-de59-4052-84f3-6c37cfb7c7db)
-![Screenshot from 2024-07-11 17-01-14](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/f11bf4e2-d780-4de3-a664-0d3b2d0ada2d)
-
-
-
-테스트 결과
-![Screenshot from 2024-07-11 16-59-54](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/958f0a5d-44cf-4bc5-9405-1e351a0ff8d6)
-![Screenshot from 2024-07-11 17-03-58](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/01636859-6bc6-4181-bd86-831b0ca7a697)
-![Screenshot from 2024-07-11 17-06-33](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/1bf2cd2c-8ae9-4b00-b563-dd73ff750cce)
-![Screenshot from 2024-07-11 17-08-54](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/05d2b556-fded-40ad-bcd7-dd8a3b42ef7f)
-테스트 결과를 확인하면 후반부에 갑자기 loss가 증가하는 것을 확인 할 수 있습니다. 정보를 찾아보니 lego-loam 에서 나오는 ```/laser_odom_to_init```토픽을 사용하면 시간이 지남에 따라 드리프트가 발생할 수 있다고 합니다. 반면 ```/integrated_to_init``` 토픽을 사용하면 드리프트를 줄이고 전역적으로 보정된 위치를 제공하여 장시간 주행에서도 안정적인 위치 추정을 제공한다고 합니다. 이점을 착안하여 GT를 다시 제작하도록 하겠습니다. 
-
-추가적으로 모델을 보니 ResNet34를 사용하고 있는데 좀더 높은 정확도를 사용하기 위해 좀더 다층의 ResNet 모델을 추가 하였습니다. 그러나 이는 학습 단계에서 실습 하는 정도로만 사용하고 향후 실시간으로 pose를 추론 할때는 제일 얇은 층인 34를 이용하는 것이 좋을 것 같습니다.
-
-
-
-## 학습실행(intergrated_to_init)
-추가적으로 모델을 보니 ResNet34를 사용하고 있는데 좀더 높은 정확도를 사용하기 위해 좀더 다층의 ResNet 모델을 추가 하였습니다.(기본 : 34 , 추가 : 54, 101, 152)```dataloader.py``` , ```train.py``` , ```model.py``` 수정
-
-* 첫번쨰 시도 : 바로 이전 학습 결과를 보면 400 epoch 학습을 한것과 비슷한 결과를 보여 학습 시간을 줄이기 위해 epoch을 100으로 줄여 진행하였습니다.
-```
-python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_train.txt --batch_size 32 --num_epochs 100 --lr 0.001 --num_epochs_decay 25 --model_save_step 25 --num_workers 8
-```
-학습결과
-![Screenshot from 2024-07-11 22-52-19](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/ccd6a848-4003-4923-a9f6-9d9b24580f3a)
-![Screenshot from 2024-07-11 22-51-11](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/02ee63ff-08bf-41df-a15b-fb5f87e7de72)
-
-* 두번쨰 시도
-```
-python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_train.txt --batch_size 32 --num_epochs 25 --lr 0.001 --num_epochs_decay 5  --model_save_step 5 --num_workers 8
-```
-![Screenshot from 2024-07-12 00-03-52](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/4975fc13-b544-4764-a10b-4281a679faa5)
-![Screenshot from 2024-07-12 00-10-57](https://github.com/kyeonghyeon0314/AirLAB_toy_project/assets/132433953/2b0a4b40-9dad-4fb5-93cb-c35723edf701)
-계속해서 해보아도 rotation_loss 가 일정 값으로 수렴하지 않습니다. 
-* 여섯번째 시도( 그전의 시도들은 기록을 안하기도 하였고 의미가 없는 결과가 나왔습니다.)
-```
-python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_train.txt --batch_size 32 --num_epochs 35 --lr 0.001 --num_epochs_decay 5  --model_save_step 5 --num_workers 8
-```
-![image](https://github.com/user-attachments/assets/574a3586-3c95-428f-8f10-045a94ea61b3)
-![image](https://github.com/user-attachments/assets/68466b63-1b11-4f81-8ca8-4239e3eca497)
-![image](https://github.com/user-attachments/assets/9997239c-fae5-4407-8d21-708947514393)
-해당 학습의 34번째 모델의 시험 하였을 때 중간에 갑자기 poss error가 100,200으로 올라 평균값이 크게 나왔지만 전반적으로 20~30 정도의 error가 나오는것을 확인했습니다. 향후 ```34_net.pth```에서 추가 학습을 진행해 최적화 해보도록 하겠습니다.
-
-
-
-```
-python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_train.txt --batch_size 32 --num_epochs 200 --lr 0.0001 --num_epochs_decay 25  --model_save_step 5 --num_workers 8 --pretrained_model 24 --dropout_rate 0.3
-```
-# 생성한 GT Pose를 Rviz 상에 시각화 하기
-1차적으로 만든 시각화 노드(```gt_visual```)를 실행해 보았을때 원래의 방향과 반대의 방향으로 진행을 하기에 GT가 잘못 생성이 되었나 생각하여 검토를 하였습니다. 확인 결과 시간동기화가 안되어 있는 것을 확인 하였습니다. 그러하여 일부 수정하여 다시 GT를 제작해 보았습니다.
-
-다시 제작한 GT에 맞게 ```visualize_pose.py```를 수정하였습니다.
 
 
 # Test dataset으로 실시간으로 GT의 pose정보와 예측한 pose값을 Rviz상에서 시각화하기
