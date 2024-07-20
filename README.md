@@ -171,6 +171,7 @@ rosbag play dataset_train.bag --clock
 수정후 train 데이터의 pose와 이미지 데이터의 개수는 11,513개로 줄어 들었습니다.
 
 # 생성한 GT Pose를 Rviz 상에 시각화 하기(Test 데이터 셋을 예시로)
+
 생성된 GT를 PoseNet에 학습 시키기 전에 데이터를 처리를 어떤형식으로 하면 좋을지 알아야 하므로 GT를 먼저 RViz 상에 시각화 하는것이 좋다는 것을 깨달았습니다. 이전에 데이터의 형상을 파악하지 않고 무턱대고 학습만 계속 시켰는데 학습은 제대로 되어지고 있지만 test error가 줄어들지 않는 모습을 보였습니다. 이번 기회에 데이터 전처리 과정이 얼마나 중요한지 몸으로 느낄 수 있는 시간이였습니다. 
 우선 LeGO-LOAM을 이용하여 mapping을 하는 과정(아래 사진 참조) 을 보면 고정 축과 동체의 축이 많이 다르 다는 것을 확인 할 수 있습니다. GT의 pose를 동체의 축을 기준으로 다시 맞춰주는 ```transform_pose``` 함수를 추가 하였습니다.
 ![5](https://github.com/user-attachments/assets/bfd58e3d-2718-4e19-93bb-90a3923c7033)
@@ -230,14 +231,25 @@ class CustomDataset(Dataset):
 또한, 학습시 ```transform_pose```을 활용 해야 하므로 ```dataloader.py```에 ```transform_pose```함수를 추가하고 알맞게 적용 될수 있도록 설정하였습니다.
 
 * 기존 학습시 짧은 Epoch에 좋은 학습 경과를 보였던 셋팅
-```
-python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_train.txt --model Resnet50--batch_size 32 --num_epochs 25 --lr 0.001 --num_epochs_decay 5  --model_save_step 5 --num_workers 8
-```
 
+train
+```
+python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_train.txt --model Resnet50 --batch_size 32 --num_epochs 25 --lr 0.001 --num_epochs_decay 5  --model_save_step 5 --num_workers 8
+```
+![Screenshot from 2024-07-20 18-39-24](https://github.com/user-attachments/assets/d0c0cb43-94ad-4b6e-9f4b-c3373167baf0)
+![Screenshot from 2024-07-20 18-33-36](https://github.com/user-attachments/assets/5bf65b73-dc11-433d-aa5b-997b5ad61185)
+test
+```
+python3 test.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_train.txt --model Resnet50 --test_model 24
+```
+![Screenshot from 2024-07-20 18-37-33](https://github.com/user-attachments/assets/10e3e8d0-ecfa-473e-9e9e-83c7dce33b9b)
+축 변환하기 전에는 poss error가 100을 넘어 갔었는데 현재 축을 변환을 해서 데이터 전처리를 하니 ```test```결과가 올바르게 나온것을 확인 할 수 있었습니다.
 
 
 # Test dataset으로 실시간으로 GT의 pose정보와 예측한 pose값을 Rviz상에서 시각화하기
+
 ## 예측한 Pose값을 RViz상에 시각화 노드 제작
+
 패키지 생성
 ```
 catkin_create_pkg <패키지 이름> cv_bridge geometry_msgs message_filters rospy visualization_msgs
