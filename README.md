@@ -301,3 +301,43 @@ test 데이터셋의 시작 점이 train 데이터셋 상에서 어떤 위치인
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+cd ~/catkin_ws/src
+catkin_create_pkg rviz_visualization rospy std_msgs sensor_msgs geometry_msgs cv_bridge tf rviz
+cd ~/catkin_ws/src/rviz_visualization
+mkdir launch rviz scripts
+
+cd ~/catkin_ws/src/rviz_visualization/scripts
+chmod +x image_pose_publisher.py
+chmod +x image_to_pose_predict.py
+
+```
+
+
+
+
+
+
