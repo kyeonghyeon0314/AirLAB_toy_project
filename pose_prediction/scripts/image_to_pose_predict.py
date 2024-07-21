@@ -6,12 +6,10 @@ import torchvision.transforms as transforms
 from sensor_msgs.msg import Image
 from geometry_msgs.msg import PoseArray, Pose
 from cv_bridge import CvBridge, CvBridgeError
-import cv2
 import numpy as np
 import sys
 import os
 import argparse
-import tf.transformations as tft
 
 # 모델 경로와 weight 파일 경로 설정
 MODEL_PATH = '/home/kimkh/PoseNet-Pytorch/model.py'
@@ -20,30 +18,6 @@ WEIGHT_PATH = '/home/kimkh/PoseNet-Pytorch/models_AirLAB'
 # PoseNet 모델 불러오기
 sys.path.append(os.path.dirname(MODEL_PATH))
 from model import model_parser
-
-# Transform pose function
-def transform_pose(pose):
-    px, py, pz = pose[0], pose[1], pose[2]
-    qx, qy, qz, qw = pose[3], pose[4], pose[5], pose[6]
-    
-    transformed_px = -pz
-    transformed_py = -px
-    transformed_pz = py
-    
-    # 쿼터니언 변환
-    quat = [qx, qy, qz, qw]
-    rot_quat_x = tft.quaternion_from_euler(np.pi / 2, 0, 0)
-    rot_quat_z = tft.quaternion_from_euler(0, 0, -np.pi / 2)
-    
-    # 기존 쿼터니언과 두 회전 쿼터니언을 곱하여 새로운 쿼터니언 생성
-    quat_after_x = tft.quaternion_multiply(rot_quat_x, quat)
-    transformed_quat = tft.quaternion_multiply(rot_quat_z, quat_after_x)
-    
-    rospy.loginfo(f"Original quat: {quat}")
-    rospy.loginfo(f"Rotated quat after x: {quat_after_x}")
-    rospy.loginfo(f"Transformed quat: {transformed_quat}")
-    
-    return transformed_px, transformed_py, transformed_pz, transformed_quat[0], transformed_quat[1], transformed_quat[2], transformed_quat[3]
 
 class PosePredictor:
     def __init__(self, model_name, weight_file):
@@ -58,38 +32,53 @@ class PosePredictor:
         self.model.load_state_dict(torch.load(weight_path, map_location=self.device))
         self.model.eval()
 
-        self.pose_publisher = rospy.Publisher('/predict_pose_array', PoseArray, queue_size=10)
-        rospy.Subscriber('/image', Image, self.callback)
+        self.pose_publisher = rospy.Publisher('/predicted_poses', PoseArray, queue_size=10)
+        rospy.Subscriber('/gt_images', Image, self.callback)
+        rospy.Subscriber('/gt_poses', PoseArray, self.callback_gt_pose)
         self.pose_array_msg = PoseArray()
         self.pose_array_msg.header.frame_id = 'map'
         
         rospy.loginfo(f"Model {model_name} loaded with weights from {weight_path}")
 
-    def callback(self, msg):
+    def callback_image(self, msg):
         try:
             cv_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
-            rospy.loginfo("Image received and converted")
         except CvBridgeError as e:
             rospy.logerr("CvBridge Error: {0}".format(e))
             return
 
-        rospy.loginfo(f"Original image shape: {cv_image.shape}")
-
         input_image = self.preprocess_image(cv_image)
-        rospy.loginfo(f"Processed image shape: {input_image.shape}")
 
         position, rotation = self.predict_pose(input_image)
-        rospy.loginfo(f"Predicted position: {position}")
-        rospy.loginfo(f"Predicted rotation: {rotation}")
 
-        # Normalizing rotation values if they are out of expected range
         rotation = self.normalize_rotation(rotation)
-        rospy.loginfo(f"Normalized rotation: {rotation}")
 
-        transformed_pose = transform_pose(np.concatenate((position, rotation)))
-        rospy.loginfo(f"Transformed pose: {transformed_pose}")
+        self.publish_pose(position, rotation)
+        
+        #디버깅 추가
+        if self.gt_poses:
+            gt_pose = self.gt_poses.pop(0)
+            gt_position = torch.tensor([gt_pose.position.x, gt_pose.position.y, gt_pose.position.z], device=self.device)
+            gt_orientation = torch.tensor([gt_pose.orientation.x, gt_pose.orientation.y, gt_pose.orientation.z, gt_pose.orientation.w], device=self.device)
+            
+            pos_error = torch.norm(position - gt_position).item()
+            ori_error = torch.norm(rotation - gt_orientation).item()
+            
+            print(f"{self.prediction_count}")
+            print(f"pos out {position.cpu().numpy()}")
+            print(f"ori out {rotation.cpu().numpy()}")
+            print(f"pos true {gt_position.cpu().numpy()}")
+            print(f"ori true {gt_orientation.cpu().numpy()}")
+            print(f"{position.cpu().numpy()}")
+            print(f"{gt_position.cpu().numpy()}")
+            print(f"{self.prediction_count}th Error: pos error {pos_error:.3f} / ori error {ori_error:.3f}")
+            
+            self.prediction_count += 1
 
-        self.publish_pose(transformed_pose)
+    
+    def callback_gt_pose(self, msg):
+        self.gt_poses = msg.poses
+    
 
     def preprocess_image(self, image):
         preprocess = transforms.Compose([
@@ -99,16 +88,12 @@ class PosePredictor:
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ])
         processed_image = preprocess(image).unsqueeze(0).to(self.device)
-        rospy.loginfo("Image preprocessed")
         return processed_image
 
     def predict_pose(self, image):
         with torch.no_grad():
             position, rotation, _ = self.model(image)
-        position = position.cpu().numpy().flatten()
-        rotation = rotation.cpu().numpy().flatten()
-        rospy.loginfo(f"Pose predicted: Position {position}, Rotation {rotation}")
-        return position, rotation
+        return position.flatten(), rotation.flatten()
 
     def normalize_rotation(self, rotation):
         norm = np.linalg.norm(rotation)
@@ -116,20 +101,20 @@ class PosePredictor:
             rotation = rotation / norm
         return rotation
 
-    def publish_pose(self, pose):
+    def publish_pose(self, position, rotation):
         pose_msg = Pose()
-        pose_msg.position.x = pose[0]
-        pose_msg.position.y = pose[1]
-        pose_msg.position.z = pose[2]
-        pose_msg.orientation.x = pose[3]
-        pose_msg.orientation.y = pose[4]
-        pose_msg.orientation.z = pose[5]
-        pose_msg.orientation.w = pose[6]
+        pose_msg.position.x = pose[0].item()
+        pose_msg.position.y = pose[1].item()
+        pose_msg.position.z = pose[2].item()
+        pose_msg.orientation.x = pose[3].item()
+        pose_msg.orientation.y = pose[4].item()
+        pose_msg.orientation.z = pose[5].item()
+        pose_msg.orientation.w = pose[6].item()
 
         self.pose_array_msg.poses.append(pose_msg)
+        self.pose_array_msg.header.stamp = rospy.Time.now()
         self.pose_publisher.publish(self.pose_array_msg)
-        rospy.loginfo(f"Published pose: {pose_msg}")
-
+       
 def main():
     parser = argparse.ArgumentParser(description='ROS Node to predict poses from images using a PoseNet model.')
     parser.add_argument('--model', type=str, required=True, help='Model name to use for PoseNet.')
