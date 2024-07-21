@@ -9,6 +9,7 @@ from cv_bridge import CvBridge, CvBridgeError
 import argparse
 import numpy as np  # numpy 모듈 추가
 import message_filters # 모듈 추가
+import tf
 
 class ImagePoseSync:
     def __init__(self, mode):
@@ -36,7 +37,7 @@ class ImagePoseSync:
         self.bridge = CvBridge()
         
         # ROS 토픽 구독(message_filters 추가)
-        odom_sub = message_filters.Subscriber('/laser_odom_to_init', Odometry)
+        odom_sub = message_filters.Subscriber('/integrated_to_init', Odometry)
         image_sub = mesage_filters.Subscriber('/zed/left/image_rect_color/compressed', CompressedImage)
         
         ts = message_filters.ApproximateTimeSynchronizer([odom_sub, image_sub], 10, 0.1)
