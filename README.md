@@ -283,47 +283,7 @@ cd ~/catkin_ws/src/image_publisher/scripts
 touch image_pose_publisher.py
 ```
 
-## RViz 상에 시각화
-```
-roscore
-rviz
-rosrun pose_prediction image_to_pose_predict.py --model Resnet50 --weight 24
-rosrun image_publisher image_pose_publisher.py
-```
-rviz에 토픽 추가후 관찰
-
-
-test 데이터셋의 시작 점이 train 데이터셋 상에서 어떤 위치인지 확인해 보면 사진상에서 동그라미 친 부분과 동일한것을 확인 할 수있습니다. 실제로 예측한 값을 보시면 grid 기준으로 비슷한 위치에 값을 예측하고 있는 것을 확인 할 수 있습니다.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+## launch 형식으로 실행방식 변경
 ```
 cd ~/catkin_ws/src
 catkin_create_pkg rviz_visualization rospy std_msgs sensor_msgs geometry_msgs cv_bridge tf rviz
@@ -335,6 +295,41 @@ chmod +x image_pose_publisher.py
 chmod +x image_to_pose_predict.py
 
 ```
+
+## RViz 상에 시각화
+```
+roscore
+rviz
+rosrun pose_prediction image_to_pose_predict.py --model Resnet50 --weight 24
+rosrun image_publisher image_pose_publisher.py
+```
+rviz에 토픽 추가후 관찰
+
+![Screenshot from 2024-07-21 22-19-54](https://github.com/user-attachments/assets/e960c5e7-a357-48b7-8745-07f0172d7b1d)
+빨간색이 예측값
+
+현재 예측값이 실제 값과 너무 많은 차이를 보이고 있습니다.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
