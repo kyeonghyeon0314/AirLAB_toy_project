@@ -42,8 +42,8 @@ def main():
     rate = rospy.Rate(5)  # Hz
     bridge = CvBridge()
     
-    gt_file_path = '/home/kimkh/PoseNet-Pytorch/PoseNet/AirLAB/pose_data_test.txt'  # 실제 파일 경로로 수정
-    image_folder_path = '/home/kimkh/PoseNet-Pytorch/PoseNet/AirLAB/images_test'  # 이미지 폴더 경로로 수정
+    gt_file_path = '/home/kimkh/PoseNet-Pytorch/PoseNet/AirLAB/pose_data_test.txt'  # 파일 경로로 
+    image_folder_path = '/home/kimkh/PoseNet-Pytorch/PoseNet/AirLAB/images_test'  # 이미지 폴더 경로로 
 
     data = parse_gt_file(gt_file_path)
     
