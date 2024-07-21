@@ -1,0 +1,11 @@
+<launch>
+    <!-- RViz 실행 -->
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find rviz_visualization)/visualize.rviz" />
+
+    <!-- 이미지와 포즈 데이터를 발행하는 노드 -->
+    <node name="image_pose_publisher" pkg="rviz_visualization" type="image_pose_publisher.py" output="screen"/>
+
+    <!-- 이미지를 받아 포즈를 예측하는 노드 -->
+    <node name="pose_predictor" pkg="rviz_visualization" type="image_to_pose_predict.py" output="screen"/>
+</launch>
+
