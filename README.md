@@ -240,10 +240,18 @@ python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/
 ![Screenshot from 2024-07-20 18-33-36](https://github.com/user-attachments/assets/5bf65b73-dc11-433d-aa5b-997b5ad61185)
 test
 ```
-python3 test.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_train.txt --model Resnet50 --test_model 24
+python3 test.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_test.txt --model Resnet50 --test_model 24
 ```
-![Screenshot from 2024-07-20 18-37-33](https://github.com/user-attachments/assets/10e3e8d0-ecfa-473e-9e9e-83c7dce33b9b)
-축 변환하기 전에는 poss error가 100을 넘어 갔었는데 현재 축을 변환을 해서 데이터 전처리를 하니 ```test```결과가 올바르게 나온것을 확인 할 수 있었습니다.
+축 변환 이후에도 여전히 poss error 가 높게 나온것을 확인 할수 있습니다.
+gt가 잘못 생성 된것으로 판단해 test 데이터 셋의 gt만 시각화 하여 확인 하였었지만 train 데이터셋의 gt도 시각화 하여 확인 한 결과 train 데이터셋은 평평하게 형성되지 못한 반번 test 데이터 셋은 평평하게 형성되어 학습이 제대로 이루어 져도 test를 해도 올바를 값을 예측 할 수 없는 것 이였습니다. 
+test_gt
+![Screenshot from 2024-07-21 19-06-51](https://github.com/user-attachments/assets/ac09fb4c-ef58-44a7-82b1-0091b7c51271)
+train_gt
+![Screenshot from 2024-07-21 19-09-20](https://github.com/user-attachments/assets/302ca7ac-8eb3-4868-9dcf-d333d588523f)
+
+
+
+
 
 
 # 실시간으로 GT의 pose정보와 예측한 pose값을 Rviz상에서 시각화하기
