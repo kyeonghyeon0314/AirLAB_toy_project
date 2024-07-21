@@ -243,11 +243,13 @@ test
 python3 test.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_test.txt --model Resnet50 --test_model 24
 ```
 축 변환 이후에도 여전히 poss error 가 높게 나온것을 확인 할수 있습니다.
-gt가 잘못 생성 된것으로 판단해 test 데이터 셋의 gt만 시각화 하여 확인 하였었지만 train 데이터셋의 gt도 시각화 하여 확인 한 결과 train 데이터셋은 평평하게 형성되지 못한 반번 test 데이터 셋은 평평하게 형성되어 학습이 제대로 이루어 져도 test를 해도 올바를 값을 예측 할 수 없는 것 이였습니다. 
+gt가 잘못 생성 된것으로 판단해 test 데이터 셋의 gt만 시각화 하여 확인 하였었지만 train 데이터셋의 gt도 시각화 하여 확인 한 결과 train 데이터셋은 평평하게 형성되지 못한 반번 test 데이터 셋은 평평하게 형성되어 학습이 제대로 이루어 져도 test를 해도 올바를 값을 예측 할 수 없는 것으로 파악됩니다.
+
 test_gt
 ![Screenshot from 2024-07-21 19-06-51](https://github.com/user-attachments/assets/ac09fb4c-ef58-44a7-82b1-0091b7c51271)
 train_gt
 ![Screenshot from 2024-07-21 19-09-20](https://github.com/user-attachments/assets/302ca7ac-8eb3-4868-9dcf-d333d588523f)
+![Screenshot from 2024-07-21 19-38-23](https://github.com/user-attachments/assets/3b850c94-9f29-4a0c-80bb-0d8e2891784e)
 
 
 
@@ -289,6 +291,9 @@ rosrun pose_prediction image_to_pose_predict.py --model Resnet50 --weight 24
 rosrun image_publisher image_pose_publisher.py
 ```
 rviz에 토픽 추가후 관찰
+
+
+test 데이터셋의 시작 점이 train 데이터셋 상에서 어떤 위치인지 확인해 보면 사진상에서 동그라미 친 부분과 동일한것을 확인 할 수있습니다. 실제로 예측한 값을 보시면 grid 기준으로 비슷한 위치에 값을 예측하고 있는 것을 확인 할 수 있습니다.
 
 
 
