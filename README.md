@@ -234,7 +234,7 @@ class CustomDataset(Dataset):
 
 train
 ```
-python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_train.txt --model Resnet50 --batch_size 32 --num_epochs 25 --lr 0.001 --num_epochs_decay 5  --model_save_step 5 --num_workers 8
+python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_train.txt --model Resnet50 --batch_size 32 --num_epochs 25 --lr 0.001 --num_epochs_decay 5  --model_save_step 5 --num_workers 12
 ```
 ![Screenshot from 2024-07-20 18-39-24](https://github.com/user-attachments/assets/d0c0cb43-94ad-4b6e-9f4b-c3373167baf0)
 ![Screenshot from 2024-07-20 18-33-36](https://github.com/user-attachments/assets/5bf65b73-dc11-433d-aa5b-997b5ad61185)
@@ -251,6 +251,21 @@ train_gt
 ![Screenshot from 2024-07-21 19-09-20](https://github.com/user-attachments/assets/302ca7ac-8eb3-4868-9dcf-d333d588523f)
 ![Screenshot from 2024-07-21 19-38-23](https://github.com/user-attachments/assets/3b850c94-9f29-4a0c-80bb-0d8e2891784e)
 
+
+# GT 의 pose 텍스트 파일 변환
+```
+cd catkin_ws/src
+catkin_create_pkg pose_transformer std_msgs rospy roscpp
+cd ~/catkin_ws/src/pose_transformer/scripts
+chmod +x transform_node.py
+```
+![Screenshot from 2024-07-22 14-02-38](https://github.com/user-attachments/assets/e242adfa-05aa-44b5-a453-6d4ed58f21a4)
+
+변환후 학습 
+```
+python3 train.py --image_path ./PoseNet/AirLAB --metadata_path ./PoseNet/AirLAB/pose_data_train.txt --model Resnet50 --batch_size 32 --num_epochs 25 --lr 0.001 --num_epochs_decay 5  --model_save_step 5 --num_workers 12
+```
+![Screenshot from 2024-07-22 14-46-02](https://github.com/user-attachments/assets/242488c3-80ea-420d-a0a5-f597be162fb5)
 
 
 
