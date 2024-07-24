@@ -15,28 +15,6 @@ import matplotlib.pyplot as plt
 from PIL import Image
 import tf.transformations as tft
 
-
-def transform_pose(pose):
-    px, py, pz = pose[0], pose[1], pose[2]
-    qx, qy, qz, qw = pose[3], pose[4], pose[5], pose[6]
-    
-    transformed_px = -pz
-    transformed_py = -px
-    transformed_pz = py
-    
-    # 쿼터니언 변환
-    quat = [qx, qy, qz, qw]
-    rot_quat_x = tft.quaternion_from_euler(np.pi / 2, 0, 0)
-    
-    # z축을 기준으로 -90도 회전하는 쿼터니언
-    rot_quat_z = tft.quaternion_from_euler(0, 0, -np.pi / 2)
-    
-    # 기존 쿼터니언과 두 회전 쿼터니언을 곱하여 새로운 쿼터니언 생성
-    quat_after_x = tft.quaternion_multiply(rot_quat_x, quat)
-    transformed_quat = tft.quaternion_multiply(rot_quat_z, quat_after_x)
-    
-    return transformed_px, transformed_py, transformed_pz, transformed_quat[0], transformed_quat[1], transformed_quat[2], transformed_quat[3]
-
 class CustomDataset(Dataset):
     def __init__(self, image_path, metadata_path, mode, transform, num_val=3000):
         self.image_path = image_path
@@ -61,7 +39,7 @@ class CustomDataset(Dataset):
             values = list(map(lambda x: float(x.replace(",", "")), values))
 
              # 변환된 pose 정보 사용
-            transformed_values = transform_pose(values)
+            # transformed_values = transform_pose(values)
 
             filename = os.path.join(self.image_path, filename)
 
