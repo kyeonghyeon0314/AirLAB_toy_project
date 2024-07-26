@@ -314,9 +314,7 @@ chmod +x image_to_pose_predict.py
 ## RViz 상에 시각화
 ```
 roscore
-rviz
-rosrun pose_prediction image_to_pose_predict.py --model Resnet50 --weight 24
-rosrun image_publisher image_pose_publisher.py
+roslaunch rivizvisualization rviz.launch
 ```
 rviz에 토픽 추가후 관찰
 
